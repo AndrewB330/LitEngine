@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(LitEngine)
+set(CMAKE_CXX_STANDARD 20)
 # set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic")
 
 macro(append_cxx_flag text)
@@ -21,7 +22,7 @@ include(FetchContent)
 FetchContent_Declare(entt GIT_REPOSITORY https://github.com/skypjack/entt GIT_TAG master)
 FetchContent_MakeAvailable(entt)
 
-add_subdirectory(Application)
+add_subdirectory(application)
 add_subdirectory(common)
 add_subdirectory(rendering)
 add_subdirectory(engine)

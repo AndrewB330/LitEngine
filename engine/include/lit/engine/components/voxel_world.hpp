@@ -1,12 +1,13 @@
 #pragma once
 
-#include <glm/vec3.hpp>
 #include <lit/common/glm_ext/comparators.hpp>
-#include <set>
+#include <lit/engine/algorithms/allocator.hpp>
+#include <glm/vec3.hpp>
+#include <functional>
 #include <optional>
 #include <memory>
-#include <lit/engine/algorithms/allocator.hpp>
-#include <functional>
+#include <array>
+#include <set>
 
 namespace lit::engine {
 
@@ -43,7 +44,9 @@ namespace lit::engine {
 
         constexpr static glm::ivec3 GetChunkGridDims() { return GetDims() >> CHUNK_SIZE_LOG; }
 
-        VoxelWorld(std::function<void(glm::ivec3 chunk_position, ChunkRaw &chunkRaw)> chunk_generator);
+        VoxelWorld();
+
+        void SetGenerator(std::function<void(glm::ivec3, ChunkRaw &)> chunk_generator);
 
         void SetVoxel(int x, int y, int z, uint32_t value);
 
@@ -57,18 +60,33 @@ namespace lit::engine {
 
     private:
 
-        void ResetChunk(glm::ivec3 )
+        void Generate();
 
-        bool IsKnownChunk(glm::ivec3 chunk_pos) const;
+        void UpdateGrid();
 
-        bool IsValidChunk(glm::ivec3 chunk_pos) const;
+        void SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index);
+
+        void SetEmpty(glm::ivec3 grid_position);
+        
+        size_t GridPosToIndex(glm::ivec3 grid_position);
+        
+        size_t ChunkPosToIndex(glm::ivec3 position);
+
+        ChunkRaw & ResetChunk(glm::ivec3);
+
+        bool IsKnownChunk(glm::ivec3 grid_position) const;
+
+        bool IsValidChunk(glm::ivec3 grid_position) const;
 
         std::optional<glm::ivec3> GetNextUnknownChunk();
 
-        uint64_t m_version = 0;
-        std::vector<uint32_t> m_index_pool;
+        std::function<void(glm::ivec3, ChunkRaw &)> m_chunk_generator;
 
-        std::set<glm::ivec3, lit::common::glm_ext::vec3_comparator<float>> m_requests;
+        uint64_t m_version = 0;
+
+        FixedAllocator m_chunk_index_allocator {1'000'000};
+
+        std::vector<glm::ivec3> m_generator_requests;
 
         std::vector<ChunkWithLods> m_chunks;
         std::vector<ChunkIndexType> m_grid_data_with_lods;

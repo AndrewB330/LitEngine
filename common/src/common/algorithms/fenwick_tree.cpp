@@ -45,6 +45,6 @@ void FenwickTreeRange3D::Add(glm::ivec3 pos, int value) {
                 data_m.at(PosToIndex(i, j, k)) += value;
 }
 
-int FenwickTreeRange3D::PosToIndex(int i, int j, int k) const {
+int64_t FenwickTreeRange3D::PosToIndex(int64_t i, int64_t j, int64_t k) const {
     return i + j * dims_m.x + k * dims_m.x * dims_m.y;
 }

@@ -5,11 +5,15 @@
 
 namespace lit::common {
 
-    class timer {
+    class Timer {
     public:
-        timer();
+        Timer();
 
-        double get_elapsed_seconds();
+        void Reset();
+
+        double GetTime() const;
+
+        double GetTimeAndReset();
 
     private:
         #ifdef _MSC_VER
@@ -19,17 +23,17 @@ namespace lit::common {
         #endif
     };
 
-    class fps_timer {
+    class FpsTimer {
     public:
-        fps_timer() = default;
+        FpsTimer() = default;
 
-        void frame_start();
+        void FrameStart();
 
-        void frame_end();
+        void FrameEnd();
 
-        [[nodiscard]] double get_average_fps() const;
+        double GetAverageFPS() const;
 
-        [[nodiscard]] double get_average_ms() const;
+        double GetAverageMS() const;
 
     private:
         const int kMaxFramesCount = 60;
@@ -38,7 +42,7 @@ namespace lit::common {
 
         std::queue<double> m_times;
 
-        timer m_timer;
+        Timer m_timer;
     };
 
 }

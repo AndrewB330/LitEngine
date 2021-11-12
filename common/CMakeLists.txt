@@ -8,9 +8,8 @@ set(
         include/lit/common/algorithms/fenwick_tree.hpp
         include/lit/common/glm_ext/comparators.hpp
         include/lit/common/glm_ext/region.hpp
-        include/lit/common/glm_ext/transform.hpp
         include/lit/common/images/lodepng.hpp
-        include/lit/common/images/image.hpp
+        include/lit/common/images/images.hpp
 )
 
 set(

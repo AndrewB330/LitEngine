@@ -1,16 +1,15 @@
 #include <utility>
 #include <lit/application/window.hpp>
-#include <lit/common/logging.hpp>
-#include <lit/common/time_utils.hpp>
 #include <GL/glew.h>
 
-using namespace lit::common;
 using namespace lit::application;
+
+Window::Window(spdlog::logger_ptr logger, WindowInfo info): m_info(std::move(info)), m_logger(std::move(logger)) {}
 
 Window::~Window() {
     if (sdl_window != nullptr) {
         SDL_DestroyWindow(sdl_window);
-        Logger::LogInfo("Window \"%s\" destroyed", info.title.c_str());
+        m_logger->info("Window \"{}\" destroyed", m_info.title.c_str());
     }
 }
 
@@ -19,40 +18,39 @@ bool Window::Init() {
         return true;
     }
 
+    // OpenGL 4.5 todo: make it as a parameter
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 
-    sdl_window = SDL_CreateWindow(info.title.c_str(),
+    sdl_window = SDL_CreateWindow(m_info.title.c_str(),
                                   SDL_WINDOWPOS_CENTERED_MASK,
                                   SDL_WINDOWPOS_CENTERED_MASK,
-                                  info.width,
-                                  info.height,
+                                  m_info.width,
+                                  m_info.height,
                                   SDL_WINDOW_OPENGL |
                                   SDL_WINDOW_SHOWN |
-                                  (info.resizable ? SDL_WINDOW_RESIZABLE : 0) |
-                                  (info.maximized ? SDL_WINDOW_MAXIMIZED : 0));
+                                  (m_info.resizable ? SDL_WINDOW_RESIZABLE : 0) |
+                                  (m_info.maximized ? SDL_WINDOW_MAXIMIZED : 0));
     if (sdl_window == nullptr) {
-        Logger::LogInfo("SDL_CreateWindow: %s", SDL_GetError());
+        m_logger->error("SDL_CreateWindow: {}", SDL_GetError());
         return false;
     } else {
-        Logger::LogInfo("[1/3] SDL Window \"%s\" created.", info.title.c_str());
+        m_logger->info("[1/3] SDL Window \"{}\" created.", m_info.title.c_str());
     }
     gl_context = SDL_GL_CreateContext(sdl_window);
     if (gl_context == nullptr) {
-        Logger::LogError("SDL_GL_CreateContext: %s", SDL_GetError());
+        m_logger->error("SDL_GL_CreateContext: {}", SDL_GetError());
         return false;
     } else {
-        Logger::LogInfo("[2/3] SDL GL Context Created.");
+        m_logger->info("[2/3] SDL GL Context Created.");
     }
     glewInit();
-    Logger::LogInfo("[3/3] GLEW Initialized.");
+    m_logger->info("[3/3] GLEW Initialized.");
     SDL_GL_SetSwapInterval(0);
     glClearColor(0, 0, 0, 0);
     return initialized = true;
 }
-
-Window::Window(WindowInfo info) : info(std::move(info)) {}
 
 bool Window::ProcessEvent(const SDL_Event &event) {
     if (!initialized || closed) {
@@ -65,7 +63,7 @@ bool Window::ProcessEvent(const SDL_Event &event) {
             SDL_DestroyWindow(sdl_window);
             sdl_window = nullptr;
             closed = true;
-            Logger::LogInfo("Window \"%s\" was closed by user", info.title.c_str());
+            m_logger->info("Window \"{}\" was closed by user", m_info.title.c_str());
         }
         return true;
     }
@@ -80,7 +78,7 @@ bool Window::ProcessEvent(const SDL_Event &event) {
 }
 
 Window::Window(Window &&window) noexcept {
-    std::swap(info, window.info);
+    std::swap(m_info, window.m_info);
     std::swap(sdl_window, window.sdl_window);
     std::swap(gl_context, window.gl_context);
     std::swap(initialized, window.initialized);
@@ -102,7 +100,7 @@ void Window::Redraw() {
         l->StartFrameEvent();
     }
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     for (auto &r : renderers) {
         r->Redraw();
     }
@@ -114,7 +112,9 @@ void Window::AddRenderer(std::shared_ptr<WindowRenderer> renderer) {
     if (!initialized || closed) {
         return;
     }
-    renderer->Init(sdl_window, gl_context);
+    renderer->m_sdl_window = sdl_window;
+    renderer->m_context = gl_context;
+    renderer->Init();
     renderers.push_back(std::move(renderer));
 }
 

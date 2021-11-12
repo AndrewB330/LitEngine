@@ -5,40 +5,50 @@ using namespace lit::common;
 
 typedef std::chrono::duration<double, std::ratio<1> > second_;
 
-timer::timer() {
+Timer::Timer() {
     m_start_time = std::chrono::high_resolution_clock::now();
 }
 
-double timer::get_elapsed_seconds() {
+double Timer::GetTime() const {
     auto cur_time = std::chrono::high_resolution_clock::now();
     auto delta = std::chrono::duration_cast<second_>(cur_time - m_start_time).count();
     return delta;
 }
 
-double fps_timer::get_average_fps() const {
+void Timer::Reset() {
+    m_start_time = std::chrono::high_resolution_clock::now();
+}
+
+double Timer::GetTimeAndReset() {
+    double res = GetTime();
+    Reset();
+    return res;
+}
+
+double FpsTimer::GetAverageFPS() const {
     if (m_times.empty()) {
         return 0;
     }
     return m_times.size() / (m_times.back() - m_times.front());
 }
 
-double fps_timer::get_average_ms() const {
+double FpsTimer::GetAverageMS() const {
     if (m_times.empty()) {
         return 0;
     }
     return (m_times.back() - m_times.front()) / m_times.size() * 1000.0;
 }
 
-void fps_timer::frame_start() {
+void FpsTimer::FrameStart() {
     if (m_frame_started) {
-        frame_end();
+        FrameEnd();
     }
     m_frame_started = true;
-    m_timer = timer();
+    m_timer = Timer();
 }
 
-void fps_timer::frame_end() {
-    double time = m_timer.get_elapsed_seconds();
+void FpsTimer::FrameEnd() {
+    double time = m_timer.GetTime();
     while(m_times.size() > kMaxFramesCount) {
         m_times.pop();
     }

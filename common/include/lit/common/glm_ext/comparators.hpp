@@ -11,7 +11,7 @@
 namespace lit::common::glm_ext {
 
     template<typename T>
-    struct VecComp3 {
+    struct vec3_comparator {
         bool operator()(const glm::vec<3, T> &lhs, const glm::vec<3, T> &rhs) const {
             if (lhs.x != rhs.x)
                 return lhs.x < rhs.x;

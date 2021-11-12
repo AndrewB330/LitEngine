@@ -1,19 +1,20 @@
 #include <lit/application/application.hpp>
-#include <lit/common/logging.hpp>
+#include <utility>
 #include <GL/glew.h>
 
-using namespace lit::common;
 using namespace lit::application;
+
+Application::Application(spdlog::logger_ptr logger) : m_logger(std::move(logger)) {}
 
 bool Application::Init() {
     if (initialized) {
         return true;
     }
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        Logger::LogError("SDL_Init: %s", SDL_GetError());
+        m_logger->error("SDL_Init: {}", SDL_GetError());
         return false;
     } else {
-        Logger::LogInfo("SDL Initialized.");
+        m_logger->info("SDL Initialized.");
     }
     return initialized = true;
 }
@@ -21,18 +22,18 @@ bool Application::Init() {
 Application::~Application() {
     if (initialized) {
         windows.clear();
-        Logger::LogInfo("Application destroyed");
+        m_logger->info("Application destroyed");
         SDL_Quit();
     }
 }
 
-bool Application::CreateWindow(const WindowInfo& window_info,
+bool Application::CreateWindow(const WindowInfo &window_info,
                                std::vector<std::shared_ptr<WindowRenderer>> renderers,
                                std::vector<std::shared_ptr<WindowListener>> listeners) {
     if (!initialized) {
         return false;
     }
-    windows.emplace_back(window_info);
+    windows.emplace_back(m_logger, window_info);
     auto &w = windows.back();
     bool res = w.Init();
     if (!res) {

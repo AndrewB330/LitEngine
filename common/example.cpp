@@ -6,20 +6,20 @@
 using namespace lit::common;
 
 void ExampleTime() {
-    timer timer;
+    Timer timer;
 
-    double t = timer.get_elapsed_seconds();
+    double t = timer.GetTime();
 
-    fps_timer fps;
+    FpsTimer fps;
 
     for(int i = 0; i < 9999; i++) {
-        fps.frame_start();
+        fps.FrameStart();
         // frame rendering
-        fps.frame_end();
+        fps.FrameEnd();
     }
 
-    double average_fps = fps.get_average_fps();
-    double average_ms = fps.get_average_ms();
+    double average_fps = fps.GetAverageFPS();
+    double average_ms = fps.GetAverageMS();
 }
 
 void ExampleLogging() {

@@ -10,9 +10,16 @@ namespace lit::application {
 
         virtual ~WindowRenderer() = default;
 
-        virtual bool Init(SDL_Window *window, SDL_GLContext context) = 0;
+        virtual bool Init() = 0;
 
         virtual void Redraw() = 0;
+
+    protected:
+        friend class Window;
+
+        // It is guaranteed that m_sdl_window and m_context is not null for Init or Redraw call
+        SDL_Window *m_sdl_window = nullptr;
+        SDL_GLContext m_context = nullptr;
     };
 
 }

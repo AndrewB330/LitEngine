@@ -22,7 +22,7 @@ namespace lit::common::algorithms {
     private:
         int Get(glm::ivec3 end);
 
-        int PosToIndex(int i, int j, int k) const;
+        int64_t PosToIndex(int64_t i, int64_t j, int64_t k) const;
 
         std::vector<int> data_m;
         glm::ivec3 dims_m;

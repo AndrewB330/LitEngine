@@ -15,7 +15,7 @@ namespace lit::engine {
     public:
         VoxelWorldGpuDataManager();
 
-        void Update(const VoxelWorld & world, glm::dvec3 position);
+        void Update(VoxelWorld & world, glm::dvec3 position);
 
         UniformBuffer & GetWorldDataBuffer();
 
@@ -37,12 +37,8 @@ namespace lit::engine {
 
     private:
 
-        void RefreshWorldData(const VoxelWorld & world);
-
-        void RefreshChunkData(const VoxelChunk & chunk, uint32_t index);
-
-        static inline const uint64_t WORLD_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1028; // 128MB
-        static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1024ll * 3; // 3GB
+        static inline const uint64_t WORLD_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 128; // 128MB
+        static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1024ll * 2; // 2GB
         static inline const uint64_t INFO_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 2; // 2MB
 
         static inline const int BUCKET_NUM = 4;
@@ -63,7 +59,6 @@ namespace lit::engine {
         uint64_t m_prev_world_version = 0;
         UniformBuffer m_world_data_buffer;
         // Chunks
-        std::vector<uint64_t> m_prev_chunk_versions;
         std::vector<uint32_t> m_chunk_bucket;
         std::vector<uint32_t> m_chunk_address; // relative address, inside bucket
         UniformBuffer m_chunk_data_buffer;
@@ -72,10 +67,7 @@ namespace lit::engine {
         FixedAllocator m_allocator[BUCKET_NUM];
 
         bool m_world_registered = false;
-        std::unordered_set<uint64_t> m_chunk_uids;
 
-        static inline const uint32_t UPDATES_PER_TICK = 50;
         std::vector<uint32_t> m_sorted_chunk_indices;
-        uint32_t m_updates_index = 0;
     };
 }

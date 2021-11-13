@@ -47,17 +47,6 @@ void TestTree() {
         }
     }
 
-    /*for (int i = 0; i < 128; i++) {
-        for(int j = 0; j < 128; j++) {
-            for(int k = 0; k < 128; k++) {
-                uint32_t val = (i + j * k + k * i + 3 * j);
-                if (val % 25 == 0) {
-                    tree.SetVoxel(i, j, k, 0);
-                }
-            }
-        }
-    }*/
-
     for (int i = 0; i < 128; i++) {
         for(int j = 0; j < 128; j++) {
             for(int k = 0; k < 128; k++) {
@@ -77,46 +66,31 @@ void TestTree() {
     }
 }
 
-std::optional<VoxelChunk> GenerateChunk(glm::ivec3 chunk_pos) {
+void GenerateChunk(glm::ivec3 chunk_pos, VoxelWorld::ChunkRaw & chunk) {
     float min = 1e9;
     float max = -1e9;
 
     auto height = [](int x, int y) {
-        float radius = glm::length(glm::vec2((x - VoxelWorld::DIMS.x*0.5f), (y -  VoxelWorld::DIMS.z*0.5f)));
+        float radius = glm::length(glm::vec2((x - VoxelWorld::GetDims().x*0.5f), (y -  VoxelWorld::GetDims().z*0.5f)));
         float h = ((-radius * radius)/(2048 * 100 + radius*radius) + 1) * 512;
         float g1 = (x + y*0.2f);
         float g2 = (y - x * 0.1f);
         return sinf(g1 / 48.0f) * 32.0f * cosf(g2 / 46.0f) + h + 42;
     };
 
-    for (int i = 0; i < VoxelChunk::CHUNK_SIZE; i++) {
-        for(int j = 0; j < VoxelChunk::CHUNK_SIZE; j++) {
-            glm::ivec3 pos = chunk_pos * glm::ivec3(VoxelChunk::CHUNK_SIZE) + glm::ivec3(i, 0, j);
+    for (int i = 0; i < VoxelWorld::CHUNK_SIZE; i++) {
+        for(int j = 0; j < VoxelWorld::CHUNK_SIZE; j++) {
+            glm::ivec3 pos = chunk_pos * glm::ivec3(VoxelWorld::CHUNK_SIZE) + glm::ivec3(i, 0, j);
             float val = height(pos.x, pos.z);
-            min = std::min(min, val);
-            max = std::max(max, val);
-        }
-    }
-
-    if (max < chunk_pos.y * VoxelChunk::CHUNK_SIZE) {
-        return std::nullopt;
-    }
-    VoxelChunk chunk;
-    for (int i = 0; i < VoxelChunk::CHUNK_SIZE; i++) {
-        for(int j = 0; j < VoxelChunk::CHUNK_SIZE; j++) {
-            glm::ivec3 pos = chunk_pos * glm::ivec3(VoxelChunk::CHUNK_SIZE) + glm::ivec3(i, 0, j);
-            float val = height(pos.x, pos.z);
-            for(int k = 0; k < VoxelChunk::CHUNK_SIZE; k++) {
+            for(int k = 0; k < VoxelWorld::CHUNK_SIZE; k++) {
                 if (k + pos.y < val) {
-                    chunk.SetVoxel(i, k, j, 1);
+                    chunk[i][k][j] = 1;
                 } else {
                     break;
                 }
             }
         }
     }
-    chunk.Update();
-    return std::move(chunk);
 }
 
 Scene InitScene() {
@@ -124,20 +98,14 @@ Scene InitScene() {
 
     auto & world = scene.CreteEntity("world").AddComponent<VoxelWorld>();
 
-    int a = 0, b = 0;
-    while(auto chunk_pos = world.GetNextUnknownChunk()) {
-        auto chunk = GenerateChunk(*chunk_pos);
-        if (chunk) {
-            world.SetChunk(*chunk_pos, std::move(*chunk));
-            b++;
-        } else {
-            world.SetEmpty(*chunk_pos);
-            a++;
-        }
-    }
-    world.Update();
+    int num = 0;
 
-    spdlog::default_logger()->info("World created! Empty chunks: {}; Not empty chunks: {};", a, b);
+    world.SetGenerator([&](glm::ivec3 grid_position, VoxelWorld::ChunkRaw & chunk) {
+        num++;
+        GenerateChunk(grid_position, chunk);
+    });
+
+    spdlog::default_logger()->info("World created! Chunks know: {}; Chunks non-empty: {}; Size: {} Bytes", num, world.GetChunksNum(), world.GetSize());
 
     auto observer = scene.CreteEntity("observer");
     observer.AddComponent<CameraComponent>();

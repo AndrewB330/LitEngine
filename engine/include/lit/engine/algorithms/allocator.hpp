@@ -30,6 +30,9 @@ namespace lit::engine {
         void Free(uint32_t address);
 
         uint32_t GetSize() const;
+
+        uint32_t GetPtr() const;
+
     private:
         uint32_t m_size;
         uint32_t m_ptr = 0;

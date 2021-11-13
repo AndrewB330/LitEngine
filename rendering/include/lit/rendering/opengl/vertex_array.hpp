@@ -57,15 +57,15 @@ namespace lit::rendering::opengl {
                                             uint32_t index_data_size);
 
         template<typename T, int SIZE>
-        void AddVertexAttrib(int total, int offset, glm::vec<CHUNK_SIZE, T> attrib) {
-            m_attribs.push_back({CHUNK_SIZE, GetGlType<T>(), offset});
-            LIT_ASSERT(offset + sizeof(T) * CHUNK_SIZE == total, "Vertex data should not contain paddings", spdlog::default_logger())
+        void AddVertexAttrib(int total, int offset, glm::vec<SIZE, T> attrib) {
+            m_attribs.push_back({SIZE, GetGlType<T>(), offset});
+            LIT_ASSERT(offset + sizeof(T) * SIZE == total, "Vertex data should not contain paddings", spdlog::default_logger())
         }
 
         template<typename T, int SIZE, typename ...Attribs>
-        void AddVertexAttrib(int total, int offset, glm::vec<CHUNK_SIZE, T> attrib, Attribs... attribs) {
-            m_attribs.push_back({CHUNK_SIZE, GetGlType<T>(), offset});
-            AddVertexAttrib(total, offset + sizeof(T) * CHUNK_SIZE, attribs...);
+        void AddVertexAttrib(int total, int offset, glm::vec<SIZE, T> attrib, Attribs... attribs) {
+            m_attribs.push_back({SIZE, GetGlType<T>(), offset});
+            AddVertexAttrib(total, offset + sizeof(T) * SIZE, attribs...);
         }
 
         void EnableAttribs();

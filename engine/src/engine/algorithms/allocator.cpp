@@ -93,3 +93,7 @@ bool FixedAllocator::CanAllocate() {
 uint32_t FixedAllocator::GetSize() const {
     return m_size;
 }
+
+uint32_t FixedAllocator::GetPtr() const {
+    return m_ptr;
+}

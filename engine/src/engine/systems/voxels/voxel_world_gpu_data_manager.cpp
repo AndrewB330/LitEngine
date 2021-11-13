@@ -15,7 +15,7 @@ VoxelWorldGpuDataManager::VoxelWorldGpuDataManager() :
     }
 }
 
-void VoxelWorldGpuDataManager::Update(const VoxelWorld &world, glm::dvec3 position) {
+void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
     if (!DebugOptions::Instance().update_chunks) {
         return;
     }
@@ -23,100 +23,66 @@ void VoxelWorldGpuDataManager::Update(const VoxelWorld &world, glm::dvec3 positi
     if (!m_world_registered) {
         m_world_registered = true;
 
-        RefreshWorldData(world);
+        world.WriteGridDataTo((VoxelWorld::ChunkIndexType *) m_world_data_buffer.GetHostPtr());
 
         m_prev_world_version = world.GetVersion();
+
+        world.SetChunkCreatedCallback([&](VoxelWorld::ChunkIndexType index) {
+            m_sorted_chunk_indices.push_back(index);
+            while (m_chunk_address.size() <= index) {
+                m_chunk_bucket.emplace_back(BUCKET_NUM - 1);
+                m_chunk_address.emplace_back();
+            }
+
+            m_chunk_address[index] = m_allocator[m_chunk_bucket[index]].Allocate();
+
+            uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
+                                      GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
+
+            ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
+            world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
+                                   index, m_chunk_bucket[index]);
+        });
+
+        world.SetChunkChangedCallback([&](VoxelWorld::ChunkIndexType index) {
+            uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
+                                      GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
+            world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
+                                   m_chunk_bucket[index]);
+        });
+
+        world.SetChunkDeletedCallback([&](VoxelWorld::ChunkIndexType index) {
+            m_sorted_chunk_indices.erase(
+                    std::find(m_sorted_chunk_indices.begin(), m_sorted_chunk_indices.end(), index));
+        });
+
     } else {
         // todo: update only region (?)
         if (m_prev_world_version != world.GetVersion()) {
             m_prev_world_version = world.GetVersion();
 
-            RefreshWorldData(world);
+            world.WriteGridDataTo((VoxelWorld::ChunkIndexType *) m_world_data_buffer.GetHostPtr());
         }
     }
 
-    auto &chunks = world.GetChunks();
+    if (m_sorted_chunk_indices.empty())
+        return;
 
-    std::vector<uint32_t> chunks_updated;
-    std::set<uint32_t> chunks_removed;
-    std::vector<uint32_t> chunks_added;
-
-    for (uint32_t i = 1; i < chunks.size(); i++) {
-        uint64_t uid = chunks[i].GetUid();
-        if (m_chunk_uids.find(uid) == m_chunk_uids.end()) {
-            chunks_added.push_back(i);
-            chunks_updated.push_back(i);
-            if (i < m_prev_chunk_versions.size()) {
-                chunks_removed.insert(i);
-            }
-        } else if (m_prev_chunk_versions.at(i) != chunks[i].GetVersion()) {
-            chunks_updated.push_back(i);
-        }
-    }
-
-    for (uint32_t index: chunks_updated) {
-        while (m_prev_chunk_versions.size() <= index) {
-            m_prev_chunk_versions.emplace_back();
-            m_chunk_bucket.emplace_back();
-            m_chunk_address.emplace_back(0xFFFFFFFF);
-        }
-
-        if (index == 0) {
-            continue;
-        }
-
-        auto &chunk = chunks.at(index);
-
-        if (m_chunk_uids.find(chunk.GetUid()) == m_chunk_uids.end()) {
-            if (m_chunk_address.at(index) != 0xFFFFFFFF) {
-                m_allocator[m_chunk_bucket.at(index)].Free(m_chunk_address.at(index));
-            }
-            m_chunk_bucket.at(index) = BUCKET_NUM - 1;
-            m_chunk_address.at(index) = m_allocator[m_chunk_bucket.at(index)].Allocate();
-        }
-        m_prev_chunk_versions.at(index) = chunk.GetVersion();
-        m_chunk_uids.insert(chunk.GetUid());
-
-        RefreshChunkData(chunk, index);
-    }
-
-    if (!DebugOptions::Instance().phase0) {
+    if (!DebugOptions::Instance().update_chunks) {
         return;
     }
 
-    uint32_t last = 0;
-    for (uint32_t i = 0; i < m_sorted_chunk_indices.size(); i++) {
-        if (chunks_removed.find(m_sorted_chunk_indices[i]) == chunks_removed.end()) {
-            m_sorted_chunk_indices[last++] = m_sorted_chunk_indices[i];
+    std::vector<double> distance(m_chunk_bucket.size());
+    for (uint32_t i = 0; i < m_chunk_bucket.size(); i++) {
+        distance[i] = glm::length(glm::dvec3(glm::dvec3(world.GetChunkCenterByIndex(i)) - position));
+    }
+
+    for(uint32_t step = 128; step > 1; step >>= 1) {
+        for (uint32_t i = m_sorted_chunk_indices.size() - 1; i >= step; i--) {
+            if (distance[m_sorted_chunk_indices[i]] < distance[m_sorted_chunk_indices[i - step]]) {
+                std::swap(m_sorted_chunk_indices[i], m_sorted_chunk_indices[i - step]);
+            }
         }
-    }
-
-    m_sorted_chunk_indices.resize(last);
-
-    for (auto index: chunks_added) {
-        m_sorted_chunk_indices.push_back(index);
-    }
-
-    double max_dist = 0;
-    std::vector<double> distance(chunks.size());
-    for (uint32_t i = 0; i < chunks.size(); i++) {
-        distance[i] = glm::length(glm::dvec3(
-                chunks[i].GetChunkPos() * VoxelChunk::CHUNK_SIZE + glm::ivec3(VoxelChunk::CHUNK_SIZE >> 1)) - position);
-        max_dist = std::max(max_dist, distance[i]);
-    }
-
-    std::vector<std::vector<uint32_t>> b(20);
-    for(uint32_t i = 0; i < m_sorted_chunk_indices.size(); i++) {
-        b[int(distance[m_sorted_chunk_indices[i]] / (max_dist / 18))].push_back(m_sorted_chunk_indices[i]);
-    }
-
-    m_sorted_chunk_indices.clear();
-    for(int i = 0; i < 20; i++) {
-        m_sorted_chunk_indices.insert(m_sorted_chunk_indices.end(), b[i].begin(), b[i].end());
-    }
-
-    if (!DebugOptions::Instance().phase1) {
-        return;
     }
 
     uint32_t current_bucket = 0;
@@ -142,7 +108,13 @@ void VoxelWorldGpuDataManager::Update(const VoxelWorld &world, glm::dvec3 positi
         m_allocator[old_bucket].Free(m_chunk_address[index]);
         m_chunk_address[index] = m_allocator[current_bucket].Allocate();
 
-        RefreshChunkData(chunks[index], index);
+        uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
+                                  GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
+
+        ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
+        world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
+                               index, m_chunk_bucket[index]);
+
         chunks_in_current_bucket++;
     }
 }
@@ -157,7 +129,7 @@ UniformBuffer &VoxelWorldGpuDataManager::GetChunkDataBuffer() {
 
 uint64_t VoxelWorldGpuDataManager::GetWorldLodOffsetDword(int lod) const {
     uint64_t res = 0;
-    uint64_t size = glm::compMul(VoxelWorld::CHUNK_GRID_DIMS);
+    uint64_t size = glm::compMul(VoxelWorld::GetChunkGridDims());
     for (int i = 0; i < lod; i++) {
         res += size;
         size >>= 3; // /=8
@@ -166,11 +138,11 @@ uint64_t VoxelWorldGpuDataManager::GetWorldLodOffsetDword(int lod) const {
 }
 
 uint64_t VoxelWorldGpuDataManager::GetWorldLodSizeDword(int lod) const {
-    return glm::compMul(VoxelWorld::CHUNK_GRID_DIMS >> lod);
+    return glm::compMul(VoxelWorld::GetChunkGridDims() >> lod);
 }
 
 uint64_t VoxelWorldGpuDataManager::GetChunkLodSizeDword(int lod) const {
-    return (1 << ((VoxelChunk::CHUNK_SIZE_LOG - lod) * 3));
+    return (1 << ((VoxelWorld::CHUNK_SIZE_LOG - lod) * 3));
 }
 
 uint64_t VoxelWorldGpuDataManager::GetChunkLodOffsetDword(int bucket, int lod) const {
@@ -183,7 +155,7 @@ uint64_t VoxelWorldGpuDataManager::GetChunkLodOffsetDword(int bucket, int lod) c
 
 uint64_t VoxelWorldGpuDataManager::GetChunkSizeDword(int bucket) const {
     uint64_t res = 0;
-    for (int i = bucket; i <= VoxelChunk::CHUNK_SIZE_LOG; i++) {
+    for (int i = bucket; i <= VoxelWorld::CHUNK_SIZE_LOG; i++) {
         res += GetChunkLodSizeDword(i);
     }
     return res;
@@ -191,26 +163,6 @@ uint64_t VoxelWorldGpuDataManager::GetChunkSizeDword(int bucket) const {
 
 UniformBuffer &VoxelWorldGpuDataManager::GetChunkInfoBuffer() {
     return m_chunk_info_buffer;
-}
-
-void VoxelWorldGpuDataManager::RefreshWorldData(const VoxelWorld &world) {
-    auto *dest_ptr = (uint32_t *) m_world_data_buffer.GetHostPtr();
-    for (int lod = 0; lod < VoxelWorld::GRID_LOD_NUM; lod++) {
-        const uint32_t *src_ptr = world.GetDataPointer(lod);
-        std::copy(src_ptr, src_ptr + GetWorldLodSizeDword(lod), dest_ptr + GetWorldLodOffsetDword(lod));
-    }
-}
-
-void VoxelWorldGpuDataManager::RefreshChunkData(const VoxelChunk &chunk, uint32_t index) {
-    uint32_t bucket = m_chunk_bucket[index];
-    uint32_t global_address = GetBucketOffsetDword(bucket) + m_chunk_address[index] * GetChunkSizeDword(bucket);
-    auto *dest_ptr = (uint32_t *) m_chunk_data_buffer.GetHostPtr() + global_address;
-    auto *info_dest_ptr = (ChunkInfo *) m_chunk_info_buffer.GetHostPtr();
-    for (uint32_t lod = bucket; lod < VoxelWorld::GRID_LOD_NUM; lod++) {
-        const uint32_t *src_ptr = chunk.GetDataPointer(lod);
-        std::copy(src_ptr, src_ptr + GetChunkLodSizeDword(lod), dest_ptr + GetChunkLodOffsetDword(bucket, lod));
-    }
-    info_dest_ptr[index] = ChunkInfo{global_address, bucket};
 }
 
 uint64_t VoxelWorldGpuDataManager::GetBucketOffsetDword(uint32_t bucket) const {

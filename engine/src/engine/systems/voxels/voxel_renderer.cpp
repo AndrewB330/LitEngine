@@ -28,10 +28,10 @@ VoxelRenderer::GetCamera(entt::registry &registry) const {
 
 void VoxelRenderer::UpdateConstantUniforms() {
     m_shader.Bind();
-    m_shader.SetUniform("uni_world_size", (glm::ivec3) VoxelWorld::DIMS);
-    m_shader.SetUniform("uni_chunk_size", (glm::ivec3) glm::ivec3(VoxelChunk::CHUNK_SIZE));
+    m_shader.SetUniform("uni_world_size", (glm::ivec3) VoxelWorld::GetDims());
+    m_shader.SetUniform("uni_chunk_size", (glm::ivec3) glm::ivec3(VoxelWorld::CHUNK_SIZE));
     m_shader.SetUniform("uni_world_max_lod", (int) VoxelWorld::WORLD_SIZE_LOG);
-    m_shader.SetUniform("uni_chunk_max_lod", (int) VoxelChunk::CHUNK_SIZE_LOG);
+    m_shader.SetUniform("uni_chunk_max_lod", (int) VoxelWorld::CHUNK_SIZE_LOG);
 
     for (int i = 0; i < 10; i++) {
         int location = m_shader.GetUniformLocation("uni_world_lod_buf_offset[0]");
@@ -41,7 +41,7 @@ void VoxelRenderer::UpdateConstantUniforms() {
     for (int i = 0; i < 10; i++) {
         int location = m_shader.GetUniformLocation("uni_world_linearizer[0]");
         if (location == -1) break;
-        glm::ivec3 size = VoxelWorld::CHUNK_GRID_DIMS >> i;
+        glm::ivec3 size = VoxelWorld::GetChunkGridDims() >> i;
         m_shader.SetUniform(location + i, (glm::ivec2) glm::ivec2(size.x, size.x * size.y));
     }
     for (int i = 0; i < 10; i++) {
@@ -52,7 +52,7 @@ void VoxelRenderer::UpdateConstantUniforms() {
     for (int i = 0; i < 10; i++) {
         int location = m_shader.GetUniformLocation("uni_chunk_linearizer[0]");
         if (location == -1) break;
-        glm::ivec3 size = glm::ivec3(VoxelChunk::CHUNK_SIZE) >> i;
+        glm::ivec3 size = glm::ivec3(VoxelWorld::CHUNK_SIZE) >> i;
         m_shader.SetUniform(location + i, (glm::ivec2) glm::ivec2(size.x, size.x * size.y));
     }
 
@@ -112,7 +112,7 @@ void VoxelRenderer::Update(entt::registry &registry, double dt) {
 
     auto[_, transform] = *res;
 
-    m_voxel_world_gpu_data_manager.Update(world, transform.translation * 16. + glm::dvec3(VoxelWorld::DIMS) / 2.);
+    m_voxel_world_gpu_data_manager.Update(world, transform.translation * 16. + glm::dvec3(VoxelWorld::GetDims()) / 2.);
 }
 
 /*void VoxelRenderer::RegisterGrid(entt::entity ent, VoxelGrid &grid) {

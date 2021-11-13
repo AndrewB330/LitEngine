@@ -18,6 +18,7 @@ int main(int, char **) {
     logger->set_level(spdlog::level::trace);
 
     try {
+        logger->info("{}", sizeof(void*));
         lit::viewer::ViewerApp().StartApp(logger);
     } catch (const std::exception &e) {
         logger->critical(e.what());

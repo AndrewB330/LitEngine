@@ -72,7 +72,7 @@ vec3 apply_inverse(vec3 pos, ivec3 dims, ivec3 inversed) {
 uint get_chunk(ivec3 cell, int lod) {
     cell >>= lod;
     ivec2 linearizer = uni_world_linearizer[lod - uni_chunk_max_lod];
-    return buf_world_data[uni_world_lod_buf_offset[lod - uni_chunk_max_lod] + cell.x + cell.y * linearizer.x + cell.z * linearizer.y];
+    return buf_world_data[uni_world_lod_buf_offset[lod - uni_chunk_max_lod] + cell.x * linearizer.y + cell.y * linearizer.x + cell.z];
 }
 
 bool has_chunk(ivec3 cell, int lod) {
@@ -85,7 +85,7 @@ uint get_chunk_voxel(uint chunk, uint bucket, uint chunk_offset, ivec3 cell, int
     return buf_chunk_data[
     chunk_offset
     + (0x249249u & ((0x7FFFFFF8u << (3*(uni_chunk_max_lod - lod)))) & ~((0x7FFFFFF8u) << ((uni_chunk_max_lod-bucket)*3)))
-    + cell.x + (cell.y << (uni_chunk_max_lod - lod)) + (cell.z << ((uni_chunk_max_lod - lod) << 1))
+    + cell.z + (cell.y << (uni_chunk_max_lod - lod)) + (cell.x << ((uni_chunk_max_lod - lod) << 1))
     ];
 }
 
@@ -125,10 +125,10 @@ RayCastResult ray_cast_world(vec3 origin, vec3 dir, int max_iterations) {
             uint chunk_index = get_chunk(cell_real, uni_chunk_max_lod);
             ChunkInfo chunk_info = buf_chunk_info[chunk_index];
             lod = max(lod, int(chunk_info.bucket));
-            while (lod > chunk_info.bucket + 1 && get_chunk_voxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
+            while (lod > chunk_info.bucket && get_chunk_voxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
                 lod--;
             }
-            if (lod == chunk_info.bucket + 1 && get_chunk_voxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
+            if (lod == chunk_info.bucket && get_chunk_voxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
                 hit = true;
                 res.bucket = chunk_info.bucket;
                 break;
@@ -185,6 +185,12 @@ void main() {
         }
         if (res.bucket == 3) {
             color = vec3(0.9, 0.3, 0.1);
+        }
+        if (res.bucket == 4) {
+            color = vec3(0.9, 0.4, 0.1);
+        }
+        if (res.bucket == 5) {
+            color = vec3(0.9, 0.9, 0.9);
         }
         imageStore(out_image, pixel_coords, vec4(color * l, 1));
     }

@@ -43,7 +43,7 @@ namespace lit::engine {
         inline static const ChunkIndexType CHUNK_UNKNOWN = 0xFFFF'FFFFu;
         inline static const ChunkIndexType CHUNK_EMPTY = 0x0000'0000u;
 
-        constexpr static glm::ivec3 GetDims() { return glm::ivec3{2048, 1024, 2048}; }
+        constexpr static glm::ivec3 GetDims() { return glm::ivec3{4096, 1024, 4096}; }
 
         constexpr static size_t GetGridWithLodsSize() {
             size_t res = 0;

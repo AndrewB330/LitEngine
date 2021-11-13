@@ -41,12 +41,11 @@ namespace lit::engine {
         static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1024ll * 2; // 2GB
         static inline const uint64_t INFO_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 2; // 2MB
 
-        static inline const int BUCKET_NUM = 4;
+        static inline const int BUCKET_NUM = 3;
         static inline const int BUCKET_SIZE_BYTES[] = {
                 CHUNK_BUFFER_SIZE_BYTES / 2,
                 CHUNK_BUFFER_SIZE_BYTES / 4,
-                CHUNK_BUFFER_SIZE_BYTES / 8,
-                CHUNK_BUFFER_SIZE_BYTES / 8
+                CHUNK_BUFFER_SIZE_BYTES / 4,
         };
         static_assert(sizeof(BUCKET_SIZE_BYTES)/sizeof(BUCKET_SIZE_BYTES[0]) == BUCKET_NUM);
 
@@ -69,7 +68,7 @@ namespace lit::engine {
         bool m_world_registered = false;
 
         std::vector<uint32_t> m_sorted_chunk_indices;
-        const uint32_t UPDATES_PER_FRAME = 60;
+        const uint32_t UPDATES_PER_FRAME = 30;
         uint32_t m_current_i = 0;
         uint32_t m_current_bucket = 0;
         uint32_t m_chunks_in_current_bucket = 0;

@@ -12,10 +12,12 @@ macro(append_cxx_flag text)
 
     endforeach()
 endmacro()
+
 add_definitions(-DHAVE_LIBC)
 append_cxx_flag("/std:c++latest")
 append_cxx_flag("/Zc:preprocessor")
 append_cxx_flag("/wd4103")
+append_cxx_flag("/openmp")
 
 include(FetchContent)
 

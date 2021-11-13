@@ -69,5 +69,9 @@ namespace lit::engine {
         bool m_world_registered = false;
 
         std::vector<uint32_t> m_sorted_chunk_indices;
+        const uint32_t UPDATES_PER_FRAME = 60;
+        uint32_t m_current_i = 0;
+        uint32_t m_current_bucket = 0;
+        uint32_t m_chunks_in_current_bucket = 0;
     };
 }

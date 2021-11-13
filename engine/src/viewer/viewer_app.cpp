@@ -2,12 +2,10 @@
 #include <lit/application/platform.hpp>
 #include <lit/viewer/viewer_window.hpp>
 #include <lit/viewer/debug_window.hpp>
-#include <lit/engine/components/transform.hpp>
-#include <lit/common/time_utils.hpp>
-#include <GL/glew.h>
 #include <lit/engine/entity_view.hpp>
 #include <lit/engine/systems/observer_input_controller>
-#include <lit/engine/components/camera.hpp>
+#include <GL/glew.h>
+#include <omp.h>
 
 using namespace lit::application;
 using namespace lit::common;
@@ -23,7 +21,7 @@ MessageCallback(GLenum, GLenum type, GLuint, GLenum severity, GLsizei, const GLc
     }
     prev_error_type = type;
     spdlog::default_logger()->error("GL CALLBACK: {} type = {}, severity = {}, message = {}",
-                                       (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
+                                    (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
 }
 
 void EnableGlDebug() {
@@ -32,7 +30,7 @@ void EnableGlDebug() {
     glDebugMessageCallback(MessageCallback, nullptr);
 }
 
-#include <lit/engine/components/voxel_tree.hpp>
+/*
 void TestTree() {
     VoxelTree tree{glm::ivec3(128)};
 
@@ -65,24 +63,23 @@ void TestTree() {
         }
     }
 }
-
-void GenerateChunk(glm::ivec3 chunk_pos, VoxelWorld::ChunkRaw & chunk) {
-    float min = 1e9;
-    float max = -1e9;
-
+*/
+void GenerateChunk(glm::ivec3 chunk_pos, VoxelWorld::ChunkRaw &chunk) {
     auto height = [](int x, int y) {
-        float radius = glm::length(glm::vec2((x - VoxelWorld::GetDims().x*0.5f), (y -  VoxelWorld::GetDims().z*0.5f)));
-        float h = ((-radius * radius)/(2048 * 100 + radius*radius) + 1) * 512;
-        float g1 = (x + y*0.2f);
+        float radius = glm::length(
+                glm::vec2((x - VoxelWorld::GetDims().x * 0.5f), (y - VoxelWorld::GetDims().z * 0.5f)));
+        float h = ((-radius * radius) / (2048 * 100 + radius * radius) + 1) * 512;
+        float g1 = (x + y * 0.2f);
         float g2 = (y - x * 0.1f);
         return sinf(g1 / 48.0f) * 32.0f * cosf(g2 / 46.0f) + h + 42;
     };
 
+#pragma parallel for
     for (int i = 0; i < VoxelWorld::CHUNK_SIZE; i++) {
-        for(int j = 0; j < VoxelWorld::CHUNK_SIZE; j++) {
+        for (int j = 0; j < VoxelWorld::CHUNK_SIZE; j++) {
             glm::ivec3 pos = chunk_pos * glm::ivec3(VoxelWorld::CHUNK_SIZE) + glm::ivec3(i, 0, j);
             float val = height(pos.x, pos.z);
-            for(int k = 0; k < VoxelWorld::CHUNK_SIZE; k++) {
+            for (int k = 0; k < VoxelWorld::CHUNK_SIZE; k++) {
                 if (k + pos.y < val) {
                     chunk[i][k][j] = 1;
                 } else {
@@ -95,17 +92,19 @@ void GenerateChunk(glm::ivec3 chunk_pos, VoxelWorld::ChunkRaw & chunk) {
 
 Scene InitScene() {
     Scene scene;
-
-    auto & world = scene.CreteEntity("world").AddComponent<VoxelWorld>();
+    omp_set_num_threads(4);
+    auto &world = scene.CreteEntity("world").AddComponent<VoxelWorld>();
 
     int num = 0;
 
-    world.SetGenerator([&](glm::ivec3 grid_position, VoxelWorld::ChunkRaw & chunk) {
+    Timer timer;
+    world.SetGenerator([&](glm::ivec3 grid_position, VoxelWorld::ChunkRaw &chunk) {
         num++;
         GenerateChunk(grid_position, chunk);
     });
 
-    spdlog::default_logger()->info("World created! Chunks know: {}; Chunks non-empty: {}; Size: {} Bytes", num, world.GetChunksNum(), world.GetSize());
+    spdlog::default_logger()->info("World created! Chunks: {}({}); Size: {} MB; Time: {} s",
+                                   world.GetChunksNum(), num, world.GetSize() / 1000000, timer.GetTime());
 
     auto observer = scene.CreteEntity("observer");
     observer.AddComponent<CameraComponent>();
@@ -117,7 +116,7 @@ Scene InitScene() {
 
 void ViewerApp::StartApp(const spdlog::logger_ptr &logger) {
 
-    TestTree();
+    //TestTree();
 
     const std::string compiler = LIT_COMPILER;
     const std::string architecture = LIT_ARCHITECTURE;

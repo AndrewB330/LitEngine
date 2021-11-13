@@ -1,5 +1,4 @@
 #pragma once
-#include <optional>
 
 #include "assert.hpp"
 #include <spdlog/spdlog.h>

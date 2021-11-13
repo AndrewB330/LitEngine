@@ -3,11 +3,10 @@
 #include <lit/common/glm_ext/comparators.hpp>
 #include <lit/engine/algorithms/allocator.hpp>
 #include <glm/vec3.hpp>
+#include <unordered_set>
 #include <functional>
-#include <optional>
 #include <memory>
 #include <array>
-#include <unordered_set>
 
 namespace std {
     template<>
@@ -44,7 +43,7 @@ namespace lit::engine {
         inline static const ChunkIndexType CHUNK_UNKNOWN = 0xFFFF'FFFFu;
         inline static const ChunkIndexType CHUNK_EMPTY = 0x0000'0000u;
 
-        constexpr static glm::ivec3 GetDims() { return glm::ivec3{4096, 1024, 4096}; }
+        constexpr static glm::ivec3 GetDims() { return glm::ivec3{2048, 1024, 2048}; }
 
         constexpr static size_t GetGridWithLodsSize() {
             size_t res = 0;

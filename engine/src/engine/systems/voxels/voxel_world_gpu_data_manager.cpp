@@ -16,10 +16,6 @@ VoxelWorldGpuDataManager::VoxelWorldGpuDataManager() :
 }
 
 void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
-    if (!DebugOptions::Instance().update_chunks) {
-        return;
-    }
-
     if (!m_world_registered) {
         m_world_registered = true;
 
@@ -39,9 +35,9 @@ void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
             uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
                                       GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
 
-            ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
             world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
                                    index, m_chunk_bucket[index]);
+            ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
         });
 
         world.SetChunkChangedCallback([&](VoxelWorld::ChunkIndexType index) {
@@ -68,10 +64,6 @@ void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
     if (m_sorted_chunk_indices.empty())
         return;
 
-    if (!DebugOptions::Instance().update_chunks) {
-        return;
-    }
-
     std::vector<double> distance(m_chunk_bucket.size());
     for (uint32_t i = 0; i < m_chunk_bucket.size(); i++) {
         distance[i] = glm::length(glm::dvec3(glm::dvec3(world.GetChunkCenterByIndex(i)) - position));
@@ -85,37 +77,40 @@ void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
         }
     }
 
-    uint32_t current_bucket = 0;
-    uint32_t chunks_in_current_bucket = 0;
+    if (m_current_i >= m_sorted_chunk_indices.size()) {
+        m_current_i = 0;
+        m_current_bucket = 0;
+        m_chunks_in_current_bucket = 0;
+    }
 
-    for (uint32_t i = 0; i < m_sorted_chunk_indices.size(); i++) {
-        uint32_t index = m_sorted_chunk_indices[i];
+    for (uint32_t updates = 0; m_current_i < m_sorted_chunk_indices.size() && updates < UPDATES_PER_FRAME; m_current_i++, updates++) {
+        uint32_t index = m_sorted_chunk_indices[m_current_i];
         uint32_t old_bucket = m_chunk_bucket[index];
 
-        if (old_bucket == current_bucket) {
-            chunks_in_current_bucket++;
+        if (old_bucket == m_current_bucket) {
+            m_chunks_in_current_bucket++;
             continue;
         }
 
-        if (current_bucket + 1 < BUCKET_NUM &&
-            (chunks_in_current_bucket > m_allocator[current_bucket].GetSize() * 0.8 ||
-             !m_allocator[current_bucket].CanAllocate())) {
-            current_bucket++;
-            chunks_in_current_bucket = 0;
+        if (m_current_bucket + 1 < BUCKET_NUM &&
+            (m_chunks_in_current_bucket > m_allocator[m_current_bucket].GetSize() * 0.8 ||
+             !m_allocator[m_current_bucket].CanAllocate())) {
+            m_current_bucket++;
+            m_chunks_in_current_bucket = 0;
         }
 
-        m_chunk_bucket[index] = current_bucket;
+        m_chunk_bucket[index] = m_current_bucket;
         m_allocator[old_bucket].Free(m_chunk_address[index]);
-        m_chunk_address[index] = m_allocator[current_bucket].Allocate();
+        m_chunk_address[index] = m_allocator[m_current_bucket].Allocate();
 
         uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
                                   GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
 
-        ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
         world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
                                index, m_chunk_bucket[index]);
+        ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
 
-        chunks_in_current_bucket++;
+        m_chunks_in_current_bucket++;
     }
 }
 

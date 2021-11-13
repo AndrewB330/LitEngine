@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <optional>
+#include <vector>
 #include <unordered_map>
 #include <glm/vec3.hpp>
 #include <memory>

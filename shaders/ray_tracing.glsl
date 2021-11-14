@@ -72,7 +72,7 @@ vec3 apply_inverse(vec3 pos, ivec3 dims, ivec3 inversed) {
 uint get_chunk(ivec3 cell, int lod) {
     cell >>= lod;
     ivec2 linearizer = uni_world_linearizer[lod - uni_chunk_max_lod];
-    return buf_world_data[uni_world_lod_buf_offset[lod - uni_chunk_max_lod] + cell.x * linearizer.y + cell.y * linearizer.x + cell.z];
+    return buf_world_data[uni_world_lod_buf_offset[lod - uni_chunk_max_lod] + cell.x * linearizer.x + cell.y * linearizer.y + cell.z];
 }
 
 bool has_chunk(ivec3 cell, int lod) {
@@ -112,7 +112,7 @@ RayCastResult ray_cast_world(vec3 origin, vec3 dir, int max_iterations) {
     vec3 shifted_ray_origin = origin; // ray origin is shifted each step to reduce floating point errors
     ivec3 cell = ivec3(floor(origin));
 
-    int lod = 9;
+    int lod = 10;
     bool hit = false;
 
     int iteration = 0;
@@ -128,7 +128,7 @@ RayCastResult ray_cast_world(vec3 origin, vec3 dir, int max_iterations) {
             while (lod > chunk_info.bucket && get_chunk_voxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
                 lod--;
             }
-            if (lod == chunk_info.bucket && get_chunk_voxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
+            if (lod == chunk_info.bucket && (res.data = get_chunk_voxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod)) != 0) {
                 hit = true;
                 res.bucket = chunk_info.bucket;
                 break;
@@ -143,22 +143,16 @@ RayCastResult ray_cast_world(vec3 origin, vec3 dir, int max_iterations) {
         ivec3 bit = findLSB(cell);
         lod = min(max(bit.x, max(bit.y, bit.z)), uni_world_max_lod);
     }
+    res.cell = apply_inverse(cell, uni_world_size, axes_inversed);
     res.iter = iteration;
     res.hit = hit;
-    res.data = 1;
     res.depth = dot(shifted_ray_origin - origin, dir);
     res.normal = ivec3(step(time.xyz, time.yzx) * step(time.xyz, time.zxy)) * (2 * axes_inversed - 1);
 
     return res;
 }
 
-void main() {
-
-    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-    if (pixel_coords.x >= uni_viewport.x || pixel_coords.y >= uni_viewport.y) {
-        return;
-    }
-    vec2 normalized_coords = (2 * vec2(pixel_coords) - vec2(uni_viewport) + vec2(1)) / uni_viewport.y;
+vec3 sample_color(vec2 normalized_coords) {
     vec3 dir = normalize(vec3(normalized_coords, distance_to_plane));
     vec3 origin = vec3(0);
 
@@ -167,8 +161,7 @@ void main() {
 
     float distance;
     if (!hit_world(origin, dir, distance)) {
-        imageStore(out_image, pixel_coords, vec4(0.8));
-        return;
+        return vec3(0);
     }
 
     RayCastResult res = ray_cast_world(origin + dir * (distance + 1e-4), dir, 200);
@@ -176,22 +169,32 @@ void main() {
     vec3 light = normalize(vec3(0.2, 1.0, 0.35));
     if (res.hit) {
         float l = max(0, dot(light, res.normal)) * 0.8 + 0.2f;
-        vec3 color = vec3(0.2, 1.0, 0.3);
-        if (res.bucket == 1) {
-            color = vec3(0.5, 0.8, 0.1);
+        float r = float(res.data & 0x0000FFu) / 255.0f;
+        float g = float((res.data & 0x00FF00u) >> 8) / 255.0f;
+        float b = float((res.data & 0xFF0000u) >> 16) / 255.0f;
+        return vec3(r, g, b) * l;
+    } else {
+        if (res.cell.y <= 0) {
+            return vec3(19, 108, 209) / 256.0;
         }
-        if (res.bucket == 2) {
-            color = vec3(0.8, 0.5, 0.1);
-        }
-        if (res.bucket == 3) {
-            color = vec3(0.9, 0.3, 0.1);
-        }
-        if (res.bucket == 4) {
-            color = vec3(0.9, 0.4, 0.1);
-        }
-        if (res.bucket == 5) {
-            color = vec3(0.9, 0.9, 0.9);
-        }
-        imageStore(out_image, pixel_coords, vec4(color * l, 1));
     }
+    return vec3(0);
+}
+
+void main() {
+    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+    if (pixel_coords.x >= uni_viewport.x || pixel_coords.y >= uni_viewport.y) {
+        return;
+    }
+    vec2 normalized_coords1 = (2 * vec2(pixel_coords) - vec2(uni_viewport) + vec2(1) + vec2(0.5, 0.5)) / uni_viewport.y;
+    vec2 normalized_coords2 = (2 * vec2(pixel_coords) - vec2(uni_viewport) + vec2(1) + vec2(-0.5, 0.5)) / uni_viewport.y;
+    vec2 normalized_coords3 = (2 * vec2(pixel_coords) - vec2(uni_viewport) + vec2(1) + vec2(-0.5, -0.5)) / uni_viewport.y;
+    vec2 normalized_coords4 = (2 * vec2(pixel_coords) - vec2(uni_viewport) + vec2(1) + vec2(0.5, -0.5)) / uni_viewport.y;
+
+    vec3 color1 = sample_color(normalized_coords1);
+    //vec3 color2 = sample_color(normalized_coords2);
+    //vec3 color3 = sample_color(normalized_coords3);
+    vec3 color4 = sample_color(normalized_coords4);
+
+    imageStore(out_image, pixel_coords, vec4((color1 /*+ color2 + color3*/ + color4) * 0.5, 1));
 }

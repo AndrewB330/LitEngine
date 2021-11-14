@@ -7,18 +7,10 @@
 #include <functional>
 #include <memory>
 #include <array>
+#include <deque>
 
-namespace std {
-    template<>
-    struct hash<glm::ivec3> {
-        std::size_t operator()(const glm::ivec3 &k) const {
-            return std::hash<int>()(k.x)
-                   ^ (std::hash<int>()(k.y) << 9)
-                   ^ (std::hash<int>()(k.y) >> 3)
-                   ^ (std::hash<int>()(k.z) << 7);
-        }
-    };
-}
+#define PARALLEL_GENERATION
+#define PARALLEL_GENERATION_THREADS 4
 
 namespace lit::engine {
 
@@ -28,14 +20,14 @@ namespace lit::engine {
         using ChunkIndexType = uint32_t;
         using VoxelType = uint32_t;
 
-        inline static const int WORLD_SIZE_LOG = 9;
+        inline static const int WORLD_SIZE_LOG = 10;
         inline static const int CHUNK_SIZE_LOG = 5;
         inline static const int GRID_LOD_NUM = WORLD_SIZE_LOG - CHUNK_SIZE_LOG + 1;
         inline static const int CHUNK_LOD_NUM = CHUNK_SIZE_LOG + 1;
         inline static const int CHUNK_SIZE = (1 << CHUNK_SIZE_LOG);
 
-        static_assert(CHUNK_SIZE_LOG < 10);
-        static_assert(WORLD_SIZE_LOG < 10);
+        static_assert(CHUNK_SIZE_LOG <= 10);
+        static_assert(WORLD_SIZE_LOG <= 10);
 
         using ChunkRaw = std::array<std::array<std::array<VoxelType, CHUNK_SIZE>, CHUNK_SIZE>, CHUNK_SIZE>;
         using ChunkWithLods = std::array<VoxelType, 0x49249249u & ~((~0u) << (3 * CHUNK_SIZE_LOG + 1))>;
@@ -43,7 +35,7 @@ namespace lit::engine {
         inline static const ChunkIndexType CHUNK_UNKNOWN = 0xFFFF'FFFFu;
         inline static const ChunkIndexType CHUNK_EMPTY = 0x0000'0000u;
 
-        constexpr static glm::ivec3 GetDims() { return glm::ivec3{4096, 1024, 4096}; }
+        constexpr static glm::ivec3 GetDims() { return glm::ivec3{8192, 1024, 8192}; }
 
         constexpr static size_t GetGridWithLodsSize() {
             size_t res = 0;
@@ -83,15 +75,15 @@ namespace lit::engine {
 
     private:
 
-        void Generate();
+        void Generate(glm::ivec3 start_grid_position);
 
         void UpdateGrid();
 
         void UpdateChunk(ChunkIndexType index);
 
-        void SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index);
+        void SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index, std::unordered_set<glm::ivec3> & queue);
 
-        void SetEmpty(glm::ivec3 grid_position);
+        void SetEmpty(glm::ivec3 grid_position, std::unordered_set<glm::ivec3> & queue);
 
         size_t GridPosToIndex(glm::ivec3 grid_position, int lod = 0) const;
 
@@ -111,9 +103,7 @@ namespace lit::engine {
 
         FixedAllocator m_chunk_index_allocator{1'000'000};
 
-        std::unordered_set<glm::ivec3> m_generator_requests;
-
-        std::vector<ChunkWithLods> m_chunks;
+        std::deque<ChunkWithLods> m_chunks;
         std::vector<ChunkIndexType> m_grid_data_with_lods;
         std::vector<glm::ivec3> m_positions;
     };

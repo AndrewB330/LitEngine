@@ -2,8 +2,21 @@
 #include <lit/engine/components/voxel_world.hpp>
 #include <algorithm>
 #include <spdlog/spdlog.h>
+#include <queue>
 
 using namespace lit::engine;
+
+namespace std {
+    template<>
+    struct hash<glm::ivec3> {
+        std::size_t operator()(const glm::ivec3 &k) const {
+            return std::hash<int>()(k.x)
+                   ^ (std::hash<int>()(k.y) << 9)
+                   ^ (std::hash<int>()(k.y) >> 3)
+                   ^ (std::hash<int>()(k.z) << 7);
+        }
+    };
+}
 
 std::vector<glm::ivec3> DELTAS = {
         {-1, 0,  0},
@@ -28,19 +41,75 @@ void VoxelWorld::SetGenerator(std::function<void(glm::ivec3, ChunkRaw &)> chunk_
     m_chunks.resize(1);
     m_positions.resize(1);
     m_chunk_index_allocator.Allocate();
-    m_generator_requests.insert(glm::ivec3(GetChunkGridDims() - glm::ivec3(1)));
     m_version = 0;
-    Generate();
+    Generate(glm::ivec3(GetChunkGridDims() - glm::ivec3(1)));
 }
 
-void VoxelWorld::Generate() {
-    if (!m_chunk_generator) {
+void VoxelWorld::Generate(glm::ivec3 start_grid_position) {
+    if (!m_chunk_generator || IsKnownChunk(start_grid_position)) {
         return;
     }
 
-    while (!m_generator_requests.empty()) {
-        auto grid_position = *m_generator_requests.begin();
-        m_generator_requests.erase(m_generator_requests.begin());
+    std::unordered_set<glm::ivec3> queue;
+    queue.insert(start_grid_position);
+
+#ifdef PARALLEL_GENERATION
+    std::vector<std::thread> threads;
+    std::mutex mutex;
+    int running = 0;
+    for (int thread = 0; thread < 16; thread++) {
+        threads.push_back(std::thread([this, &queue, &mutex, &running]() {
+            while (true) {
+                glm::ivec3 grid_position;
+                ChunkIndexType index;
+                ChunkWithLods * chunk;
+                {
+                    std::lock_guard<std::mutex> guard(mutex);
+                    if (queue.empty() && !running) break;
+                    if (queue.empty()) {
+                        continue;
+                    }
+                    grid_position = *queue.begin();
+                    queue.erase(queue.begin());
+                    if (IsKnownChunk(grid_position) || !IsValidChunk(grid_position)) {
+                        continue;
+                    }
+
+                    index = m_chunk_index_allocator.Allocate();
+                    if (index >= m_chunks.size()) {
+                        m_chunks.emplace_back();
+                        m_positions.emplace_back();
+                    }
+                    chunk = &m_chunks[index];
+                    m_positions[index] = grid_position;
+                    running++;
+                }
+
+                std::fill(chunk->begin(), chunk->end(), 0u);
+                m_chunk_generator(grid_position, reinterpret_cast<ChunkRaw &>(*chunk));
+
+                {
+                    std::lock_guard<std::mutex> guard(mutex);
+                    if (std::all_of(chunk->begin(), chunk->end(), [](VoxelType v) { return !v; })) {
+                        // if chunk is empty
+                        m_chunk_index_allocator.Free(index);
+                        SetEmpty(grid_position, queue);
+                    } else {
+                        SetChunk(grid_position, index, queue);
+                        if (m_chunk_created) {
+                            m_chunk_created(index);
+                        }
+                    }
+                    running--;
+                }
+            }
+        }));
+    }
+    for (auto &thread: threads) thread.join();
+#else
+    while (!queue.empty()) {
+        auto grid_position = *queue.begin();
+        queue.erase(queue.begin());
         if (IsKnownChunk(grid_position) || !IsValidChunk(grid_position)) {
             continue;
         }
@@ -58,26 +127,27 @@ void VoxelWorld::Generate() {
         if (std::all_of(m_chunks[index].begin(), m_chunks[index].end(), [](VoxelType v) { return !v; })) {
             // if chunk is empty
             m_chunk_index_allocator.Free(index);
-            SetEmpty(grid_position);
+            SetEmpty(grid_position, queue);
         } else {
-            SetChunk(grid_position, index);
+            SetChunk(grid_position, index, queue);
             if (m_chunk_created) {
                 m_chunk_created(index);
             }
         }
     }
+#endif
 
     UpdateGrid();
 }
 
-void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index) {
+void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index, std::unordered_set<glm::ivec3> &queue) {
     auto &chunk = reinterpret_cast<ChunkRaw &>(m_chunks[chunk_index]);
     glm::ivec3 delta = glm::ivec3(-1, 0, 0);
     if (IsValidChunk(grid_position + delta) && !IsKnownChunk(grid_position + delta)) {
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 if (chunk[0][i][j] == 0) {
-                    m_generator_requests.insert(grid_position + delta);
+                    queue.insert(grid_position + delta);
                     goto f1;
                 }
             }
@@ -90,7 +160,7 @@ void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index) 
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 if (chunk[CHUNK_SIZE - 1][i][j] == 0) {
-                    m_generator_requests.insert(grid_position + delta);
+                    queue.insert(grid_position + delta);
                     goto f2;
                 }
             }
@@ -103,7 +173,7 @@ void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index) 
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 if (chunk[i][0][j] == 0) {
-                    m_generator_requests.insert(grid_position + delta);
+                    queue.insert(grid_position + delta);
                     goto f3;
                 }
             }
@@ -116,7 +186,7 @@ void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index) 
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 if (chunk[i][CHUNK_SIZE - 1][j] == 0) {
-                    m_generator_requests.insert(grid_position + delta);
+                    queue.insert(grid_position + delta);
                     goto f4;
                 }
             }
@@ -129,7 +199,7 @@ void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index) 
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 if (chunk[i][j][0] == 0) {
-                    m_generator_requests.insert(grid_position + delta);
+                    queue.insert(grid_position + delta);
                     goto f5;
                 }
             }
@@ -142,7 +212,7 @@ void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index) 
         for (int i = 0; i < CHUNK_SIZE; i++) {
             for (int j = 0; j < CHUNK_SIZE; j++) {
                 if (chunk[i][j][CHUNK_SIZE - 1] == 0) {
-                    m_generator_requests.insert(grid_position + delta);
+                    queue.insert(grid_position + delta);
                     goto f6;
                 }
             }
@@ -155,10 +225,10 @@ void VoxelWorld::SetChunk(glm::ivec3 grid_position, ChunkIndexType chunk_index) 
     m_grid_data_with_lods[GridPosToIndex(grid_position)] = chunk_index;
 }
 
-void VoxelWorld::SetEmpty(glm::ivec3 grid_position) {
+void VoxelWorld::SetEmpty(glm::ivec3 grid_position, std::unordered_set<glm::ivec3> &queue) {
     for (auto &delta: DELTAS) {
         if (IsValidChunk(grid_position + delta) && !IsKnownChunk(grid_position + delta)) {
-            m_generator_requests.insert(grid_position + delta);
+            queue.insert(grid_position + delta);
         }
     }
     m_grid_changes++;
@@ -173,8 +243,8 @@ void VoxelWorld::UpdateChunk(ChunkIndexType index) {
         for (int i = 0; i < size.x; i++) {
             for (int j = 0; j < size.y; j++) {
                 for (int k = 0; k < size.z; k++) {
-                    m_chunks[index][ChunkPosToIndex(glm::ivec3(i, j, k) >> 1, lod)]
-                            |= m_chunks[index][ChunkPosToIndex(glm::ivec3(i, j, k), lod - 1)];
+                    m_chunks[index][ChunkPosToIndex(glm::ivec3(i, j, k) >> 1, lod)] =
+                            std::max(m_chunks[index][ChunkPosToIndex(glm::ivec3(i, j, k) >> 1, lod)], m_chunks[index][ChunkPosToIndex(glm::ivec3(i, j, k), lod - 1)]);
                 }
             }
         }
@@ -227,8 +297,7 @@ void VoxelWorld::SetVoxel(glm::ivec3 pos, VoxelType value) {
 
     // Generate chunk if it is UNKNOWN.
     if (m_grid_data_with_lods[grid_index] == CHUNK_UNKNOWN) {
-        m_generator_requests.insert(grid_position);
-        Generate();
+        Generate(grid_position);
     }
 
     // Do nothing if trying to set empty voxel in empty chunk.
@@ -246,7 +315,8 @@ void VoxelWorld::SetVoxel(glm::ivec3 pos, VoxelType value) {
         if (m_chunk_created) {
             m_chunk_created(grid_index);
         }
-        SetChunk(grid_position, index);
+        std::unordered_set<glm::ivec3> q;
+        SetChunk(grid_position, index, q);
     }
 
     auto pos_inside_chunk = pos & (CHUNK_SIZE - 1);
@@ -263,9 +333,11 @@ void VoxelWorld::SetVoxel(glm::ivec3 pos, VoxelType value) {
         if (value == 0 && (glm::any(glm::equal(pos_inside_chunk, glm::ivec3())) ||
                            glm::any(glm::equal(pos_inside_chunk, glm::ivec3(CHUNK_SIZE - 1))))) {
             for (auto &delta: DELTAS) {
-                m_generator_requests.insert((pos + delta) >> CHUNK_SIZE_LOG);
+                glm::ivec3 position = (pos + delta) >> CHUNK_SIZE_LOG;
+                if (!IsKnownChunk(position)) {
+                    Generate(position);
+                }
             }
-            Generate();
         }
     }
 }
@@ -339,9 +411,9 @@ void VoxelWorld::SetChunkChangedCallback(std::function<void(ChunkIndexType)> cal
 
 void VoxelWorld::SetChunkCreatedCallback(std::function<void(ChunkIndexType)> callback) const {
     m_chunk_created = std::move(callback);
-    for(int i = 0; i < GetChunkGridDims().x; i++) {
-        for(int j = 0; j < GetChunkGridDims().y; j++) {
-            for(int k = 0; k < GetChunkGridDims().z; k++) {
+    for (int i = 0; i < GetChunkGridDims().x; i++) {
+        for (int j = 0; j < GetChunkGridDims().y; j++) {
+            for (int k = 0; k < GetChunkGridDims().z; k++) {
                 auto index = m_grid_data_with_lods[GridPosToIndex(glm::ivec3(i, j, k))];
                 if (index != CHUNK_UNKNOWN && index != CHUNK_EMPTY) {
                     m_chunk_created(index);
@@ -358,13 +430,14 @@ VoxelWorld::ChunkIndexType VoxelWorld::GetChunksNum() const {
 size_t VoxelWorld::GetSize() const {
     size_t res = 0;
     res += sizeof(VoxelWorld);
-    res += m_generator_requests.bucket_count() * sizeof(glm::ivec3);
-    res += m_chunks.capacity() * sizeof(ChunkWithLods);
+    res += m_chunks.size() * sizeof(ChunkWithLods);
     res += m_grid_data_with_lods.capacity() * sizeof(ChunkIndexType);
     res += m_positions.capacity() * sizeof(glm::ivec3);
-    spdlog::default_logger()->trace("requests: {} * {} = {}",  m_generator_requests.bucket_count(), sizeof(glm::ivec3), m_generator_requests.bucket_count() * sizeof(glm::ivec3));
-    spdlog::default_logger()->trace("chunks: {} * {} = {}",  m_chunks.capacity(), sizeof(ChunkWithLods), m_chunks.capacity() * sizeof(ChunkWithLods));
-    spdlog::default_logger()->trace("grid: {} * {} = {}",  m_grid_data_with_lods.capacity(), sizeof(ChunkIndexType), m_grid_data_with_lods.capacity() * sizeof(ChunkIndexType));
-    spdlog::default_logger()->trace("positions: {} * {} = {}",  m_positions.capacity(), sizeof(glm::ivec3), m_positions.capacity() * sizeof(glm::ivec3));
+    spdlog::default_logger()->trace("chunks: {} * {} = {}", m_chunks.size(), sizeof(ChunkWithLods),
+                                    m_chunks.size() * sizeof(ChunkWithLods));
+    spdlog::default_logger()->trace("grid: {} * {} = {}", m_grid_data_with_lods.capacity(), sizeof(ChunkIndexType),
+                                    m_grid_data_with_lods.capacity() * sizeof(ChunkIndexType));
+    spdlog::default_logger()->trace("positions: {} * {} = {}", m_positions.capacity(), sizeof(glm::ivec3),
+                                    m_positions.capacity() * sizeof(glm::ivec3));
     return res;
 }

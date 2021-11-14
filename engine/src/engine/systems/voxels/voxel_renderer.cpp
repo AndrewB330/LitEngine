@@ -42,7 +42,7 @@ void VoxelRenderer::UpdateConstantUniforms() {
         int location = m_shader.GetUniformLocation("uni_world_linearizer[0]");
         if (location == -1) break;
         glm::ivec3 size = VoxelWorld::GetChunkGridDims() >> i;
-        m_shader.SetUniform(location + i, (glm::ivec2) glm::ivec2(size.x, size.x * size.y));
+        m_shader.SetUniform(location + i, (glm::ivec2) glm::ivec2(size.y * size.z, size.z));
     }
     for (int i = 0; i < 10; i++) {
         int location = m_shader.GetUniformLocation("uni_chunk_lod_buf_offset[0]");

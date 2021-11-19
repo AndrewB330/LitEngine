@@ -111,7 +111,7 @@ namespace lit::rendering::opengl {
 
         void Update(const lit::common::Image<uint8_t, 4> &img, int level = 0);
 
-        void BindToImage(int image_index);
+        void BindToImage(int image_index, bool read = false);
 
         void Bind(int texture_index);
 

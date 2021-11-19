@@ -4,17 +4,37 @@
 #include <lit/engine/components/voxel_tree.hpp>
 #include <GL/glew.h>
 #include <lit/viewer/debug_options.hpp>
+#include <glm/gtc/integer.hpp>
 
 using namespace lit::engine;
 
 VoxelRenderer::VoxelRenderer() {
     UpdateConstantUniforms();
+
+    auto & world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
+    world_info.world_size = VoxelWorld::GetDims();
+    world_info.chunk_size = VoxelWorld::GetChunkDims();
+    world_info.world_size_log = glm::log2(VoxelWorld::GetDims());
+    world_info.chunk_size_log = glm::log2(VoxelWorld::GetChunkDims());
+    world_info.world_max_lod = VoxelWorld::WORLD_SIZE_LOG;
+    world_info.chunk_max_lod = VoxelWorld::CHUNK_SIZE_LOG;
+    int offset = 0;
+    for (int i = 0; i < 10; i++) {
+        world_info.grid_lod_offset[i] = offset;
+        offset += glm::compMul(VoxelWorld::GetChunkGridDims() >> i);
+    }
 }
 
 void VoxelRenderer::UpdateFrameBuffer(glm::uvec2 viewport) {
     if (m_frame_buffer.GetViewport() != viewport || m_frame_buffer.IsDefault()) {
         m_frame_buffer = std::move(
                 FrameBuffer::Create({.width = viewport.x, .height = viewport.y, .attachments = {Attachment::RGBA8}}));
+        uint32_t texture_width = (viewport.x + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE;
+        uint32_t texture_height = (viewport.y + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE;
+        m_first_rt_pass_texture = std::move(
+                Texture2D::Create(
+                        {.internal_format=TextureInternalFormat::R32F, .width=texture_width, .height=texture_height})
+        );
     }
 }
 
@@ -27,34 +47,19 @@ VoxelRenderer::GetCamera(entt::registry &registry) const {
 }
 
 void VoxelRenderer::UpdateConstantUniforms() {
-    m_shader.Bind();
-    m_shader.SetUniform("uni_world_size", (glm::ivec3) VoxelWorld::GetDims());
-    m_shader.SetUniform("uni_chunk_size", (glm::ivec3) glm::ivec3(VoxelWorld::CHUNK_SIZE));
-    m_shader.SetUniform("uni_world_max_lod", (int) VoxelWorld::WORLD_SIZE_LOG);
-    m_shader.SetUniform("uni_chunk_max_lod", (int) VoxelWorld::CHUNK_SIZE_LOG);
+    m_second_shader.Bind();
 
-    for (int i = 0; i < 10; i++) {
-        int location = m_shader.GetUniformLocation("uni_world_lod_buf_offset[0]");
-        if (location == -1) break;
-        m_shader.SetUniform(location + i, (int) m_voxel_world_gpu_data_manager.GetWorldLodOffsetDword(i));
-    }
-    for (int i = 0; i < 10; i++) {
-        int location = m_shader.GetUniformLocation("uni_world_linearizer[0]");
-        if (location == -1) break;
-        glm::ivec3 size = VoxelWorld::GetChunkGridDims() >> i;
-        m_shader.SetUniform(location + i, (glm::ivec2) glm::ivec2(size.y * size.z, size.z));
-    }
-    for (int i = 0; i < 10; i++) {
-        int location = m_shader.GetUniformLocation("uni_chunk_lod_buf_offset[0]");
-        if (location == -1) break;
-        m_shader.SetUniform(location + i, (int) m_voxel_world_gpu_data_manager.GetChunkLodOffsetDword(0, i));
-    }
-    for (int i = 0; i < 10; i++) {
-        int location = m_shader.GetUniformLocation("uni_chunk_linearizer[0]");
-        if (location == -1) break;
-        glm::ivec3 size = glm::ivec3(VoxelWorld::CHUNK_SIZE) >> i;
-        m_shader.SetUniform(location + i, (glm::ivec2) glm::ivec2(size.x, size.x * size.y));
-    }
+    m_camera_info.Bind(1);
+    m_global_world_info.Bind(2);
+
+    m_voxel_world_gpu_data_manager.GetWorldDataBuffer().Bind(16);
+    m_voxel_world_gpu_data_manager.GetChunkDataBuffer().Bind(17);
+    m_voxel_world_gpu_data_manager.GetChunkInfoBuffer().Bind(18);
+
+    m_first_shader.Bind();
+
+    m_camera_info.Bind(1);
+    m_global_world_info.Bind(2);
 
     m_voxel_world_gpu_data_manager.GetWorldDataBuffer().Bind(16);
     m_voxel_world_gpu_data_manager.GetChunkDataBuffer().Bind(17);
@@ -65,12 +70,15 @@ void VoxelRenderer::UpdateShader() {
     auto &dbg = DebugOptions::Instance();
     if (dbg.recompile_shaders) {
         dbg.recompile_shaders = false;
-        auto recompiled = ComputeShader::TryCreate(m_shader_path);
-        if (!recompiled) {
+        auto first_recompiled = ComputeShader::TryCreate(m_shader_first_path);
+        auto second_recompiled = ComputeShader::TryCreate(m_shader_second_path);
+        if (!first_recompiled || !second_recompiled) {
             return;
         }
-        auto r = std::move(*recompiled);
-        std::swap(m_shader, r);
+        auto r1 = std::move(*first_recompiled);
+        auto r2 = std::move(*second_recompiled);
+        std::swap(m_first_shader, r1);
+        std::swap(m_second_shader, r2);
         UpdateConstantUniforms();
     }
 }
@@ -87,17 +95,22 @@ void VoxelRenderer::Redraw(entt::registry &registry) {
     UpdateFrameBuffer(camera.viewport);
     UpdateShader();
 
-    m_shader.Bind();
-    m_shader.SetUniform("uni_camera_transform", (glm::mat4) transform.Matrix());
-    m_shader.SetUniform("uni_camera_transform_inv", (glm::mat4) transform.MatrixInv());
-    m_shader.SetUniform("uni_viewport", (glm::ivec2) camera.viewport);
+    m_camera_info.GetHostPtrAs<CameraInfo>()->viewport = camera.viewport;
+    m_camera_info.GetHostPtrAs<CameraInfo>()->camera_transform = transform.Matrix();
+    m_camera_info.GetHostPtrAs<CameraInfo>()->camera_transform_inv = transform.MatrixInv();
 
+    // First cone-pass
+/*    m_first_shader.Bind();
+    m_first_rt_pass_texture.BindToImage(0);
+    m_first_shader.Dispatch(glm::ivec3((camera.viewport.x + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE, (camera.viewport.y + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE, 1));
+*/
+    // Second precise-pass
+    m_second_shader.Bind();
     m_frame_buffer.GetAttachmentTextures()[0].lock()->BindToImage(0);
-
+    m_first_rt_pass_texture.BindToImage(1, true);
     m_frame_buffer.Bind();
     glClear(GL_COLOR_BUFFER_BIT);
-
-    m_shader.Dispatch(glm::ivec3(camera.viewport.x, camera.viewport.y, 1));
+    m_second_shader.Dispatch(glm::ivec3(camera.viewport.x, camera.viewport.y, 1));
 
     m_frame_buffer.BlitToDefault();
 }

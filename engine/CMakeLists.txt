@@ -20,7 +20,7 @@ set(
         include/lit/viewer/debug_window.hpp
         include/lit/engine/components/voxel_tree.hpp
         include/lit/engine/components/voxel_world.hpp
-        include/lit/engine/systems/voxels/voxel_world_gpu_data_manager.hpp)
+        include/lit/engine/systems/voxels/voxel_world_gpu_data_manager.hpp include/lit/engine/systems/voxels/voxel_world_generator.hpp)
 
 set(
         SOURCES
@@ -38,7 +38,7 @@ set(
         src/viewer/debug_window.cpp
         src/engine/components/voxel_tree.cpp
         src/engine/components/voxel_world.cpp
-        src/engine/systems/voxels/voxel_world_gpu_data_manager.cpp)
+        src/engine/systems/voxels/voxel_world_gpu_data_manager.cpp src/engine/systems/voxels/voxel_world_generator.cpp)
 
 include(imgui.cmake)
 

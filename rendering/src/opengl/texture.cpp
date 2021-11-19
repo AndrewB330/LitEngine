@@ -174,9 +174,9 @@ void Texture2D::Bind(int texture_index) {
     }
 }
 
-void Texture2D::BindToImage(int image_index) {
+void Texture2D::BindToImage(int image_index, bool read) {
     if (m_texture_id) {
-        glBindImageTexture(image_index, *m_texture_id, 0, GL_TRUE, 0, GL_WRITE_ONLY,
+        glBindImageTexture(image_index, *m_texture_id, 0, GL_TRUE, 0, read ? GL_READ_ONLY : GL_WRITE_ONLY,
                            GetTextureInternalFormatEnum(m_info.internal_format));
     }
 }

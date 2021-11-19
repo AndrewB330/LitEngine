@@ -9,6 +9,28 @@
 
 using namespace lit::rendering::opengl;
 
+std::string RunPreprocessor(const std::string &shader_path, int depth = 0) {
+    if (depth > 10) {
+        return "";
+    }
+
+    std::ifstream fin(shader_path);
+    std::string shader_sources;
+    std::string root_path = shader_path.substr(0, shader_path.find_last_of('/'));
+
+    std::string line;
+    while (std::getline(fin, line))
+    {
+        if (line.starts_with("#include")) {
+            std::string path = line.substr(line.find_first_of('"') + 1, line.find_last_of('"') - line.find_first_of('"') - 1);
+            shader_sources += RunPreprocessor(root_path + "/" + path, depth + 1);
+            continue;
+        }
+        shader_sources += line + "\n";
+    }
+    return shader_sources;
+}
+
 ComputeShader::ComputeShader(uint32_t program_id) : m_program_id(std::make_unique<uint32_t>(program_id)) {
     glGetProgramiv(program_id, GL_COMPUTE_WORK_GROUP_SIZE, &m_local_group_size.x);
 }
@@ -17,7 +39,7 @@ std::optional<ComputeShader> ComputeShader::TryCreate(const std::string &shader_
     auto program_id = GL_CALL(glCreateProgram());
 
     std::ifstream fin(shader_path);
-    std::string shader_sources = {(std::istreambuf_iterator<char>(fin)), std::istreambuf_iterator<char>()};
+    std::string shader_sources = RunPreprocessor(shader_path);
     auto shader_sources_c_str = shader_sources.c_str();
 
     GL_CALL(auto shader_id = glCreateShader(GL_COMPUTE_SHADER));

@@ -6,9 +6,9 @@
 using namespace lit::engine;
 
 VoxelWorldGpuDataManager::VoxelWorldGpuDataManager() :
-        m_world_data_buffer(UniformBuffer::Create(WORLD_BUFFER_SIZE_BYTES)),
-        m_chunk_data_buffer(UniformBuffer::Create(CHUNK_BUFFER_SIZE_BYTES)),
-        m_chunk_info_buffer(UniformBuffer::Create(INFO_BUFFER_SIZE_BYTES)) {
+        m_world_data_buffer(UniformBuffer::Create({.size=WORLD_BUFFER_SIZE_BYTES})),
+        m_chunk_data_buffer(UniformBuffer::Create({.size=CHUNK_BUFFER_SIZE_BYTES})),
+        m_chunk_info_buffer(UniformBuffer::Create({.size=INFO_BUFFER_SIZE_BYTES})) {
     for (uint32_t bucket = 0; bucket < BUCKET_NUM; bucket++) {
         m_allocator[bucket] =
                 FixedAllocator(BUCKET_SIZE_BYTES[bucket] / (GetChunkSizeDword(bucket) * sizeof(uint32_t)));

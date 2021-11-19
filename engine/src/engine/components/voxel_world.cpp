@@ -57,7 +57,7 @@ void VoxelWorld::Generate(glm::ivec3 start_grid_position) {
     std::vector<std::thread> threads;
     std::mutex mutex;
     int running = 0;
-    for (int thread = 0; thread < 16; thread++) {
+    for (int thread = 0; thread < 8; thread++) {
         threads.push_back(std::thread([this, &queue, &mutex, &running]() {
             while (true) {
                 glm::ivec3 grid_position;

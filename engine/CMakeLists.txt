@@ -11,7 +11,7 @@ set(
         include/lit/engine/resources_manager.hpp
         include/lit/engine/systems/voxels/voxel_renderer.hpp
         include/lit/engine/components/camera.hpp
-        include/lit/engine/systems/observer_input_controller
+        include/lit/engine/systems/observer_input_controller.hpp
         include/lit/engine/systems/system.hpp
         include/lit/engine/entity_view.hpp
         include/lit/engine/components/tag.hpp
@@ -20,7 +20,7 @@ set(
         include/lit/viewer/debug_window.hpp
         include/lit/engine/components/voxel_tree.hpp
         include/lit/engine/components/voxel_world.hpp
-        include/lit/engine/systems/voxels/voxel_world_gpu_data_manager.hpp include/lit/engine/systems/voxels/voxel_world_generator.hpp)
+        include/lit/engine/systems/voxels/voxel_world_gpu_data_manager.hpp include/lit/engine/systems/voxels/voxel_world_generator.hpp include/lit/engine/components/sky_box.hpp include/lit/engine/systems/sky_box_renderer.hpp include/lit/engine/systems/camera_pre_renderer.hpp include/lit/engine/systems/tone_mapping_renderer.hpp)
 
 set(
         SOURCES
@@ -38,7 +38,7 @@ set(
         src/viewer/debug_window.cpp
         src/engine/components/voxel_tree.cpp
         src/engine/components/voxel_world.cpp
-        src/engine/systems/voxels/voxel_world_gpu_data_manager.cpp src/engine/systems/voxels/voxel_world_generator.cpp)
+        src/engine/systems/voxels/voxel_world_gpu_data_manager.cpp src/engine/systems/voxels/voxel_world_generator.cpp src/engine/components/sky_box.cpp src/engine/systems/sky_box_renderer.cpp src/engine/systems/camera_pre_renderer.cpp src/engine/systems/tone_mapping_renderer.cpp)
 
 include(imgui.cmake)
 

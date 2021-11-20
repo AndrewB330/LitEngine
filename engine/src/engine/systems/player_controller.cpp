@@ -1,4 +1,4 @@
-#include <lit/engine/systems/observer_input_controller>
+#include <lit/engine/systems/observer_input_controller.hpp>
 #include <lit/engine/components/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 

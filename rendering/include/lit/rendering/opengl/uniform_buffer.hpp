@@ -14,7 +14,7 @@ namespace lit::rendering::opengl {
         uint64_t size = 1;
         UniformBufferAccess access = UniformBufferAccess::Write;
         bool flushable = false;
-        bool coherent = false;
+        bool coherent = true;
         void * data = nullptr;
     };
 
@@ -27,12 +27,12 @@ namespace lit::rendering::opengl {
 
         ~UniformBuffer();
 
-        void Bind(int index);
+        void Bind(int index) const;
 
-        void * GetHostPtr();
+        void * GetHostPtr() const;
 
         template<typename T>
-        T* GetHostPtrAs() {
+        T* GetHostPtrAs() const {
             return (T*) GetHostPtr();
         }
 

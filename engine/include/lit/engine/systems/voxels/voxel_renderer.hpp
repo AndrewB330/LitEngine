@@ -42,36 +42,17 @@ namespace lit::engine {
             int grid_lod_offset[10];
         };
 
-        struct CameraInfo {
-            glm::ivec2 viewport;
-            int __pad[2];
-            glm::mat4 camera_transform;
-            glm::mat4 camera_transform_inv;
-        };
-
-        void UpdateFrameBuffer(glm::uvec2 viewport);
-
-        std::optional<std::tuple<CameraComponent, TransformComponent>> GetCamera(entt::registry &registry) const;
+        std::optional<std::tuple<CameraComponent&, TransformComponent&>> GetCamera(entt::registry &registry) const;
 
         void UpdateShader();
 
         void UpdateConstantUniforms();
 
-        const int FIRST_PASS_CELL_SIZE = 8;
+        std::string m_shader_path = ResourcesManager::GetShaderPath("main.glsl");
 
-        std::string m_shader_first_path = ResourcesManager::GetShaderPath("first_pass.glsl");
-        std::string m_shader_second_path = ResourcesManager::GetShaderPath("second_pass.glsl");
-        std::filesystem::path m_sky_box_path = ResourcesManager::GetAssetPath("sky_boxes/standard");
+        ComputeShader m_shader = ComputeShader::Create(m_shader_path);
 
-        ComputeShader m_first_shader = ComputeShader::Create(m_shader_first_path);
-        ComputeShader m_second_shader = ComputeShader::Create(m_shader_second_path);
-
-        FrameBuffer m_frame_buffer = FrameBuffer::Default();
-        UniformBuffer m_camera_info = UniformBuffer::Create({.size=sizeof(CameraInfo), .coherent=true});
-        UniformBuffer m_global_world_info = UniformBuffer::Create({.size=sizeof(GlobalWorldInfo), .coherent=true});
-
-        TextureCube m_sky_box = TextureCube::Create(m_sky_box_path);
-        Texture2D m_first_rt_pass_texture = Texture2D::Create(Texture2DInfo{});
+        UniformBuffer m_global_world_info = UniformBuffer::Create({.size=sizeof(GlobalWorldInfo)});
 
         VoxelWorldGpuDataManager m_voxel_world_gpu_data_manager;
     };

@@ -2,9 +2,10 @@
 
 layout(local_size_x = 32, local_size_y = 32) in;
 
-layout(rgba8, binding = 0) uniform image2D out_image;
-layout(r32f, binding = 1) uniform image2D in_image_approx_depth;
-layout(rgba8, binding = 2) uniform imageCube sky_box;
+layout(rgba32f, binding = 0) uniform image2D out_image;
+layout(r32f, binding = 1) uniform image2D inout_depth;
+
+uniform float uni_time;
 
 #include "camera.glsl"
 
@@ -12,9 +13,9 @@ layout(rgba8, binding = 2) uniform imageCube sky_box;
 
 #include "sky_box_utils.glsl"
 
-const int FIRST_PASS_CELL_SIZE = 8;
+#include "water.glsl"
 
-vec3 sample_color(ivec2 pixel_coords, vec2 pixel_offset) {
+vec3 SampleColor(ivec2 pixel_coords, vec2 pixel_offset, inout float depth) {
     vec3 dir = GetCameraRayDirection(pixel_coords, pixel_offset);
     vec3 origin = GetCameraOrigin();
 
@@ -36,13 +37,27 @@ vec3 sample_color(ivec2 pixel_coords, vec2 pixel_offset) {
 
         RayCastResult light_res = WorldRayCast(res.position + res.normal * 1e-5f, light, 200);
 
+        depth = res.depth + distance;
+
         if (light_res.hit) {
             return vec3(r, g, b) * l * 0.3f;
         }
 
         return vec3(r, g, b) * l;
     }
-    return GetSkyBoxColor(dir).xyz;
+
+    return vec3(0);
+}
+
+vec3 SampleWaterColor(ivec2 pixel_coords, vec2 pixel_offset, inout float depth) {
+    vec3 dir = GetCameraRayDirection(pixel_coords, pixel_offset);
+    vec3 origin = GetCameraOrigin();
+
+    if (dir.y >= -0.01) {
+        return vec3(0);
+    }
+
+    return GetWater(origin + VOXEL_SIZE * WORLD_SIZE.y * 0.5 - 0.5, dir, depth);
 }
 
 void main() {
@@ -51,7 +66,22 @@ void main() {
         return;
     }
 
-    vec3 color = sample_color(pixel_coords, vec2(0.5, 0.5));
+    float prev_depth = imageLoad(inout_depth, pixel_coords).r;
 
-    imageStore(out_image, pixel_coords, vec4(color, 1));
+    float depth = prev_depth;
+    vec3 color = SampleColor(pixel_coords, vec2(0.5, 0.5), depth);
+
+    if (depth < prev_depth) {
+        imageStore(out_image, pixel_coords, vec4(color, 1));
+        imageStore(inout_depth, pixel_coords, vec4(depth));
+        prev_depth = depth;
+    }
+
+    color = SampleWaterColor(pixel_coords, vec2(0.5, 0.5), depth);
+
+    if (depth < prev_depth) {
+        imageStore(out_image, pixel_coords, vec4(color, 1));
+        imageStore(inout_depth, pixel_coords, vec4(depth));
+        prev_depth = depth;
+    }
 }

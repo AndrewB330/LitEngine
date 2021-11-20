@@ -42,10 +42,10 @@ UniformBuffer::UniformBuffer(UniformBufferInfo buffer_info):m_size(buffer_info.s
     GL_CALL(m_host_ptr = glMapNamedBufferRange(*m_buffer_id, 0, m_size, mask | GL_MAP_UNSYNCHRONIZED_BIT));
 }
 
-void *UniformBuffer::GetHostPtr() {
+void *UniformBuffer::GetHostPtr() const {
     return m_host_ptr;
 }
 
-void UniformBuffer::Bind(int index) {
+void UniformBuffer::Bind(int index) const {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, *m_buffer_id);
 }

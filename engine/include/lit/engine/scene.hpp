@@ -1,7 +1,7 @@
 #pragma once
 
-#include <lit/engine/systems/voxels/voxel_renderer.hpp>
 #include <lit/engine/systems/system.hpp>
+#include <lit/rendering/opengl/frame_buffer.hpp>
 #include <entt/entt.hpp>
 #include <SDL.h>
 #include <queue>

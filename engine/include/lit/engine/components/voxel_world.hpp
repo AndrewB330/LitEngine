@@ -19,7 +19,7 @@ namespace lit::engine {
         using ChunkIndexType = uint32_t;
         using VoxelType = uint32_t;
 
-        inline static const int WORLD_SIZE_LOG = 9;
+        inline static const int WORLD_SIZE_LOG = 8;
         inline static const int CHUNK_SIZE_LOG = 5;
         inline static const int GRID_LOD_NUM = WORLD_SIZE_LOG - CHUNK_SIZE_LOG + 1;
         inline static const int CHUNK_LOD_NUM = CHUNK_SIZE_LOG + 1;
@@ -34,7 +34,7 @@ namespace lit::engine {
         inline static const ChunkIndexType CHUNK_UNKNOWN = 0xFFFF'FFFFu;
         inline static const ChunkIndexType CHUNK_EMPTY = 0x0000'0000u;
 
-        constexpr static glm::ivec3 GetDims() { return glm::ivec3{2048, 512, 2048}; }
+        constexpr static glm::ivec3 GetDims() { return glm::ivec3{512, 256, 512}; }
 
         constexpr static size_t GetGridWithLodsSize() {
             size_t res = 0;

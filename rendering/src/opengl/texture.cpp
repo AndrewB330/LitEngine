@@ -44,7 +44,7 @@ GLint GetTextureWrapEnum(TextureWrap wrap) {
 GLint GetTextureInternalFormatEnum(TextureInternalFormat format) {
     switch (format) {
         case TextureInternalFormat::DepthComponent:
-            return GL_DEPTH_COMPONENT;
+            return GL_DEPTH_COMPONENT32;
         case TextureInternalFormat::R8UI:
             return GL_R8UI;
         case TextureInternalFormat::R16F:
@@ -118,7 +118,7 @@ Texture2D Texture2D::CreateFromImage(const lit::common::Image<uint8_t, 3> &image
     Texture2DInfo info;
     info.width = image.GetWidth();
     info.height = image.GetHeight();
-    info.data.push_back((void*)image.GetDataPointer());
+    info.data.push_back((void *) image.GetDataPointer());
     return Texture2D(info);
 }
 
@@ -128,7 +128,7 @@ Texture2D Texture2D::CreateFromImage(const lit::common::Image<uint8_t, 4> &image
     info.height = image.GetHeight();
     info.internal_format = TextureInternalFormat::RGBA8;
     info.data_format = TextureDataFormat::RGBA;
-    info.data.push_back((void*)image.GetDataPointer());
+    info.data.push_back((void *) image.GetDataPointer());
     return Texture2D(info);
 }
 
@@ -174,10 +174,17 @@ void Texture2D::Bind(int texture_index) {
     }
 }
 
-void Texture2D::BindToImage(int image_index, bool read) {
+void Texture2D::BindToImage(int image_index, ImageAccess access) {
     if (m_texture_id) {
-        glBindImageTexture(image_index, *m_texture_id, 0, GL_TRUE, 0, read ? GL_READ_ONLY : GL_WRITE_ONLY,
-                           GetTextureInternalFormatEnum(m_info.internal_format));
+        GLenum access_gl = GL_READ_WRITE;
+        if (access == ImageAccess::Read) {
+            access_gl = GL_READ_ONLY;
+        }
+        if (access == ImageAccess::Write) {
+            access_gl = GL_WRITE_ONLY;
+        }
+        GL_CALL(glBindImageTexture(image_index, *m_texture_id, 0, GL_TRUE, 0, access_gl,
+                           GetTextureInternalFormatEnum(m_info.internal_format)));
     }
 }
 
@@ -381,8 +388,8 @@ void Texture3D::Update(const lit::common::Image3D<uint32_t> &img, const iregion3
 
     LIT_ASSERT(dims == (dst.end - dst.begin), "Src and Dst dims must be equal", l);
 
-    if (dims.x > (m_info.width >> level)){
-        int c=0;
+    if (dims.x > (m_info.width >> level)) {
+        int c = 0;
     }
     LIT_ASSERT(dims.x <= (m_info.width >> level), "Region width must be not larger than texture width", l)
     LIT_ASSERT(dims.y <= (m_info.height >> level), "Region height must be not larger than texture height", l)
@@ -421,11 +428,11 @@ Texture3D Texture3D::Create(const Texture3DInfo &textureInfo) {
 void Texture3D::BindToImage(int image_index, int level, bool read) {
     if (m_texture_id) {
         GL_CALL(glBindImageTexture(image_index, *m_texture_id, level, GL_TRUE, 0, read ? GL_READ_ONLY : GL_WRITE_ONLY,
-                           GetTextureInternalFormatEnum(m_info.internal_format)));
+                                   GetTextureInternalFormatEnum(m_info.internal_format)));
     }
 }
 
-void Texture3D::Update(void * data, int level) {
+void Texture3D::Update(void *data, int level) {
     GL_CALL(glTextureSubImage3D(
             *m_texture_id,
             level,
@@ -445,8 +452,7 @@ TextureCube TextureCube::Create(const std::filesystem::path &path) {
     GL_CALL(glGenTextures(1, &texture_id));
     GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id));
     std::vector<std::string> names = {"right.png", "left.png", "up.png", "down.png", "back.png", "front.png"};
-    for(unsigned int i = 0; i < names.size(); i++)
-    {
+    for (unsigned int i = 0; i < names.size(); i++) {
         auto image = common::ReadPNG_RGB((path / names[i]).string());
         GL_CALL(glTexImage2D(
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
@@ -473,12 +479,12 @@ TextureCube::~TextureCube() {
     }
 }
 
-void TextureCube::BindToImage(int image_index) {
+void TextureCube::BindToImage(int image_index) const {
     if (m_texture_id) {
         GL_CALL(glBindImageTexture(image_index, *m_texture_id, 0, GL_TRUE, 0, GL_READ_ONLY, GL_RGBA8));
     }
 }
 
-TextureCube::TextureCube(uint32_t texture_id): m_texture_id(std::make_unique<uint32_t>(texture_id)) {
+TextureCube::TextureCube(uint32_t texture_id) : m_texture_id(std::make_unique<uint32_t>(texture_id)) {
 
 }

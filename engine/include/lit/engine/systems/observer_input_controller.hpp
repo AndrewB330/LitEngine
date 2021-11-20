@@ -4,7 +4,7 @@
 #include <glm/vec3.hpp>
 #include <entt/entt.hpp>
 #include "system.hpp"
-#include "observer_input_controller"
+#include "observer_input_controller.hpp"
 
 namespace lit::engine {
 

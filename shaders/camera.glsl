@@ -1,8 +1,8 @@
 
 layout(std430, binding = 1) buffer CameraInfo {
-    ivec2 VIEWPORT;
     mat4 CAMERA_TRANSFORM;
     mat4 CAMERA_TRANSFORM_INV;
+    ivec2 VIEWPORT;
 };
 
 const float DISTANCE_TO_PLANE = 1.0;

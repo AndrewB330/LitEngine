@@ -5,13 +5,14 @@
 #include <GL/glew.h>
 #include <lit/viewer/debug_options.hpp>
 #include <glm/gtc/integer.hpp>
+#include <lit/common/time_utils.hpp>
 
 using namespace lit::engine;
 
 VoxelRenderer::VoxelRenderer() {
     UpdateConstantUniforms();
 
-    auto & world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
+    auto &world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
     world_info.world_size = VoxelWorld::GetDims();
     world_info.chunk_size = VoxelWorld::GetChunkDims();
     world_info.world_size_log = glm::log2(VoxelWorld::GetDims());
@@ -25,40 +26,17 @@ VoxelRenderer::VoxelRenderer() {
     }
 }
 
-void VoxelRenderer::UpdateFrameBuffer(glm::uvec2 viewport) {
-    if (m_frame_buffer.GetViewport() != viewport || m_frame_buffer.IsDefault()) {
-        m_frame_buffer = std::move(
-                FrameBuffer::Create({.width = viewport.x, .height = viewport.y, .attachments = {Attachment::RGBA8}}));
-        uint32_t texture_width = (viewport.x + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE;
-        uint32_t texture_height = (viewport.y + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE;
-        m_first_rt_pass_texture = std::move(
-                Texture2D::Create(
-                        {.internal_format=TextureInternalFormat::R32F, .width=texture_width, .height=texture_height})
-        );
-    }
-}
-
-std::optional<std::tuple<CameraComponent, TransformComponent>>
+std::optional<std::tuple<CameraComponent&, TransformComponent&>>
 VoxelRenderer::GetCamera(entt::registry &registry) const {
     for (auto c: registry.view<CameraComponent>()) {
-        return std::tuple{registry.get<CameraComponent>(c), registry.get<TransformComponent>(c)};
+        return std::tuple{std::ref(registry.get<CameraComponent>(c)), std::ref(registry.get<TransformComponent>(c))};
     }
     return std::nullopt;
 }
 
 void VoxelRenderer::UpdateConstantUniforms() {
-    m_second_shader.Bind();
+    m_shader.Bind();
 
-    m_camera_info.Bind(1);
-    m_global_world_info.Bind(2);
-
-    m_voxel_world_gpu_data_manager.GetWorldDataBuffer().Bind(16);
-    m_voxel_world_gpu_data_manager.GetChunkDataBuffer().Bind(17);
-    m_voxel_world_gpu_data_manager.GetChunkInfoBuffer().Bind(18);
-
-    m_first_shader.Bind();
-
-    m_camera_info.Bind(1);
     m_global_world_info.Bind(2);
 
     m_voxel_world_gpu_data_manager.GetWorldDataBuffer().Bind(16);
@@ -70,50 +48,37 @@ void VoxelRenderer::UpdateShader() {
     auto &dbg = DebugOptions::Instance();
     if (dbg.recompile_shaders) {
         dbg.recompile_shaders = false;
-        auto first_recompiled = ComputeShader::TryCreate(m_shader_first_path);
-        auto second_recompiled = ComputeShader::TryCreate(m_shader_second_path);
-        if (!first_recompiled || !second_recompiled) {
+        auto recompiled = ComputeShader::TryCreate(m_shader_path);
+        if (!recompiled) {
             return;
         }
-        auto r1 = std::move(*first_recompiled);
-        auto r2 = std::move(*second_recompiled);
-        std::swap(m_first_shader, r1);
-        std::swap(m_second_shader, r2);
+        auto r = std::move(*recompiled);
+        std::swap(m_shader, r);
         UpdateConstantUniforms();
     }
 }
 
+
+float timee = 0.0;
 void VoxelRenderer::Redraw(entt::registry &registry) {
+    common::Timer timer;
+
     auto res = GetCamera(registry);
 
     if (!res) {
         return;
     }
 
-    auto[camera, transform] = *res;
+    auto & [camera, transform] = *res;
 
-    UpdateFrameBuffer(camera.viewport);
     UpdateShader();
 
-    m_camera_info.GetHostPtrAs<CameraInfo>()->viewport = camera.viewport;
-    m_camera_info.GetHostPtrAs<CameraInfo>()->camera_transform = transform.Matrix();
-    m_camera_info.GetHostPtrAs<CameraInfo>()->camera_transform_inv = transform.MatrixInv();
+    m_shader.Bind();
 
-    // First cone-pass
-/*    m_first_shader.Bind();
-    m_first_rt_pass_texture.BindToImage(0);
-    m_first_shader.Dispatch(glm::ivec3((camera.viewport.x + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE, (camera.viewport.y + FIRST_PASS_CELL_SIZE - 1) / FIRST_PASS_CELL_SIZE, 1));
-*/
-    // Second precise-pass
-    m_second_shader.Bind();
-    m_frame_buffer.GetAttachmentTextures()[0].lock()->BindToImage(0);
-    m_first_rt_pass_texture.BindToImage(1, true);
-    m_sky_box.BindToImage(2);
-    m_frame_buffer.Bind();
-    glClear(GL_COLOR_BUFFER_BIT);
-    m_second_shader.Dispatch(glm::ivec3(camera.viewport.x, camera.viewport.y, 1));
+    m_shader.SetUniform("uni_time", timee);
 
-    m_frame_buffer.BlitToDefault();
+    m_shader.Dispatch(glm::ivec3(camera.GetViewport().x, camera.GetViewport().y, 1));
+    timee += timer.GetTimeAndReset() * 1000;
 }
 
 void VoxelRenderer::Update(entt::registry &registry, double dt) {
@@ -124,7 +89,7 @@ void VoxelRenderer::Update(entt::registry &registry, double dt) {
         return;
     }
 
-    auto[_, transform] = *res;
+    auto & [_, transform] = *res;
 
     m_voxel_world_gpu_data_manager.Update(world, transform.translation * 16. + glm::dvec3(VoxelWorld::GetDims()) / 2.);
 }

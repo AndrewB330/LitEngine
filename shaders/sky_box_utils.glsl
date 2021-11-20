@@ -1,3 +1,4 @@
+layout(rgba8, binding = 2) uniform imageCube sky_box;
 
 vec4 GetSkyBoxColor(vec3 direction) {
     direction = normalize(direction);

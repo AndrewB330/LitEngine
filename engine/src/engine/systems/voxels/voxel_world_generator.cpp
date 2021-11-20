@@ -168,15 +168,29 @@ VoxelWorld VoxelWorldGenerator::Generate() {
     std::vector<std::vector<int>> height(width, std::vector<int>(depth));
     std::vector<std::vector<int>> height_grass(width, std::vector<int>(depth));
     std::vector<std::vector<int>> height_sand(width, std::vector<int>(depth));
+
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < depth; j++) {
             glm::vec2 pos{i, j};
             float radius = glm::length(pos - center);
-            float x = radius / 4096.0f;
+            float x = radius / (width * 0.5);
             float noise = SampleFractalNoise2D(pos, 3000.0f, 9) - SamplePerlinNoise2D(pos / 3000.0f) * 0.3f;
-            height[i][j] = noise * 700 - x * x * 64;
-            height_sand[i][j] = height[i][j] * 0.7 + 8;
+            height[i][j] = noise * 600 - x * x * 128;
+            height_sand[i][j] = height[i][j] * 0.7 + 8 + SampleFractalNoise2D(pos, 64, 4) * 6;
             height_grass[i][j] = height[i][j] + SampleFractalNoise2D(pos, 3.3, 2) * 2 + 1;
+        }
+    }
+
+    std::mt19937 rng;
+    std::vector<glm::vec3> crowns;
+    std::uniform_real_distribution<float> xd(0, width);
+    std::uniform_real_distribution<float> zd(0, depth);
+    for (int i = 0; crowns.size() < 10; i++) {
+        glm::vec3 pos{xd(rng), 0, zd(rng)};
+        int h = height[(int) pos.x][(int) pos.z];
+        if (h > 8) {
+            pos.y += h + 4;
+            crowns.push_back(pos);
         }
     }
 
@@ -189,7 +203,8 @@ VoxelWorld VoxelWorldGenerator::Generate() {
                 int gz = z + grid_position.z * VoxelWorld::CHUNK_SIZE;
                 int h = height[gx][gz];
                 int hs = height_sand[gx][gz];
-                int h2 = std::max(h, height_grass[gx][gz]); //h + SampleFractalNoise2D(glm::vec2{gx, gz}, 3.2, 2) * 2 + 1;
+                int h2 = std::max(h,
+                                  height_grass[gx][gz]); //h + SampleFractalNoise2D(glm::vec2{gx, gz}, 3.2, 2) * 2 + 1;
 
                 const int radius = 4;
                 int min = h;
@@ -204,9 +219,32 @@ VoxelWorld VoxelWorldGenerator::Generate() {
 
                 const int grass_depth = 7;
 
+                glm::vec3 nearest_crown {9999,9999,9999};
+                for(int i = 0; i < crowns.size(); i++) {
+                    if (glm::distance(crowns[i], glm::vec3(gx, h, gz)) < glm::distance(nearest_crown, glm::vec3(gx, h, gz))) {
+                        nearest_crown = crowns[i];
+                    }
+                }
+
                 for (int y = 0; y < VoxelWorld::CHUNK_SIZE; y++) {
                     int gy = y + grid_position.y * VoxelWorld::CHUNK_SIZE;
 
+                    glm::vec3 pos{gx, gy, gz};
+
+                    float val = SampleFractalNoise3D(pos, 32, 6) + 0.5;
+                    val *= 32 + 9;
+
+                    if (val > glm::distance(pos, nearest_crown)) {
+                        chunk[x][y][z] = IVec3ToColorCode({112, 224, 94});
+                        continue;
+                    }
+
+                    if (hs > h) {
+                        if (gy < h) {
+                            chunk[x][y][z] = IVec3ToColorCode({255, 238, 130});
+                        }
+                        continue;
+                    }
                     if (max - min < grass_depth) {
                         if (gy < h2 && gy + grass_depth - (max - min) >= h2) {
                             // grass
@@ -216,11 +254,15 @@ VoxelWorld VoxelWorldGenerator::Generate() {
                             const glm::ivec3 color3 = {174, 194, 25};
                             const glm::ivec3 color4 = {210, 217, 24};
 
-                            float noise_a = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 4.3f, 3) * 1.2 + 0.5, 0.0, 1.0);
-                            float noise_b = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 3.4f, 3) * 1.2 + 0.5, 0.0, 1.0);
-                            float noise = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 1900.0f, 3) * 1.3 + 0.5, 0.0, 1.0);
+                            float noise_a = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 4.3f, 3) * 1.2 + 0.5, 0.0,
+                                                       1.0);
+                            float noise_b = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 3.4f, 3) * 1.2 + 0.5, 0.0,
+                                                       1.0);
+                            float noise = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 1900.0f, 3) * 1.3 + 0.5, 0.0,
+                                                     1.0);
 
-                            chunk[x][y][z] = IVec3ToColorCode(lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
+                            chunk[x][y][z] = IVec3ToColorCode(
+                                    lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
                             continue;
                         }
                     }
@@ -234,7 +276,8 @@ VoxelWorld VoxelWorldGenerator::Generate() {
                         float noise_a = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 13.3f, 3) * 1.3 + 0.5, 0.0, 1.0);
                         float noise_b = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 16.4f, 3) * 1.3 + 0.5, 0.0, 1.0);
                         float noise = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 400.0f, 3) * 2.9 + 0.5, 0.0, 1.0);
-                        chunk[x][y][z] = IVec3ToColorCode(lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
+                        chunk[x][y][z] = IVec3ToColorCode(
+                                lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
                     } else {
                         // air
                         break;

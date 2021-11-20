@@ -3,7 +3,7 @@
 #include <lit/viewer/viewer_window.hpp>
 #include <lit/viewer/debug_window.hpp>
 #include <lit/engine/entity_view.hpp>
-#include <lit/engine/systems/observer_input_controller>
+#include <lit/engine/systems/observer_input_controller.hpp>
 #include <GL/glew.h>
 #include <random>
 #include <omp.h>
@@ -32,24 +32,14 @@ void EnableGlDebug() {
     glDebugMessageCallback(MessageCallback, nullptr);
 }
 
-Scene InitScene() {
-    Scene scene;
+void InitScene(Scene & scene) {
     auto &world = scene.CreteEntity("world").AddComponent<VoxelWorld>();
-
-    int num = 0;
 
     Timer timer;
     world = VoxelWorldGenerator::Generate();
 
     spdlog::default_logger()->info("World created! Chunks: {}; Size: {} MB; Time: {} s",
                                    world.GetChunksNum(), world.GetSize() / 1000000, timer.GetTime());
-
-    auto observer = scene.CreteEntity("observer");
-    observer.AddComponent<CameraComponent>();
-
-    scene.AddSystem<ObserverInputController>(observer.GetEntity());
-
-    return scene;
 }
 
 void ViewerApp::StartApp(const spdlog::logger_ptr &logger) {
@@ -63,7 +53,8 @@ void ViewerApp::StartApp(const spdlog::logger_ptr &logger) {
     Application app;
     app.Init();
 
-    Scene scene = InitScene();
+    Scene scene;
+    InitScene(scene);
 
     WindowInfo game_window;
     game_window.title = "VoxelViewer (" + compiler + " " + architecture + " " + config + ")";

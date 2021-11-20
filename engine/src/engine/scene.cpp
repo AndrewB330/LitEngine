@@ -2,6 +2,8 @@
 #include <lit/engine/components/tag.hpp>
 #include <lit/engine/entity_view.hpp>
 #include <lit/engine/components/camera.hpp>
+#include <lit/engine/scene.hpp>
+
 
 using namespace lit::engine;
 
@@ -20,7 +22,7 @@ bool Scene::OnInput(const UserInput &input) {
 void Scene::OnRedraw(glm::uvec2 viewport, double dt) {
     // todo: update all cameras that bind to monitor viewport
     for(auto cam : m_registry.view<CameraComponent>()) {
-        m_registry.get<CameraComponent>(cam).viewport = viewport;
+        m_registry.get<CameraComponent>(cam).SetViewport(viewport);
     }
 
     for (auto &system: m_systems) {

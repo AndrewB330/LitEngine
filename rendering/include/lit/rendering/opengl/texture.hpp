@@ -92,6 +92,12 @@ namespace lit::rendering::opengl {
         std::vector<void *> data{};
     };
 
+    enum class ImageAccess {
+        Read,
+        Write,
+        ReadWrite
+    };
+
     class Texture2D {
     public:
         static Texture2D Create(const Texture2DInfo &textureInfo);
@@ -112,7 +118,7 @@ namespace lit::rendering::opengl {
 
         void Update(const lit::common::Image<uint8_t, 4> &img, int level = 0);
 
-        void BindToImage(int image_index, bool read = false);
+        void BindToImage(int image_index, ImageAccess access);
 
         void Bind(int texture_index);
 
@@ -166,7 +172,7 @@ namespace lit::rendering::opengl {
 
         TextureCube &operator=(TextureCube &&) = default;
 
-        void BindToImage(int image_index);
+        void BindToImage(int image_index) const;
 
     private:
         explicit TextureCube(uint32_t texture_id);

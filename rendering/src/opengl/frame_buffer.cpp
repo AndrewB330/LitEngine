@@ -59,7 +59,7 @@ FrameBuffer::FrameBuffer(const FrameBufferInfo &info) {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void FrameBuffer::Bind(BindType type) {
+void FrameBuffer::Bind(BindType type) const {
     if (m_frame_buffer_id) {
         switch (type) {
             case BindType::Read:
@@ -98,11 +98,11 @@ void FrameBuffer::Bind(BindType type) {
     }
 }
 
-void FrameBuffer::Unbind() {
+void FrameBuffer::Unbind() const {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-std::vector<std::weak_ptr<Texture2D>> FrameBuffer::GetAttachmentTextures() {
+std::vector<std::weak_ptr<Texture2D>> FrameBuffer::GetAttachmentTextures() const {
     return {m_attachments.begin(), m_attachments.end()};
 }
 
@@ -126,7 +126,7 @@ glm::uvec2 FrameBuffer::GetViewport() const {
     return {m_info.width, m_info.height};
 }
 
-void FrameBuffer::BlitTo(FrameBuffer &dest) {
+void FrameBuffer::BlitTo(FrameBuffer &dest) const {
     if (!m_frame_buffer_id)
         return;
 
@@ -142,7 +142,7 @@ void FrameBuffer::BlitTo(FrameBuffer &dest) {
     GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-void FrameBuffer::BlitToDefault() {
+void FrameBuffer::BlitToDefault() const {
     if (!m_frame_buffer_id)
         return;
 

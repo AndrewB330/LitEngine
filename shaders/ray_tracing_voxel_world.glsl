@@ -233,8 +233,11 @@ RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
     res.cell = _ApplyInverse(cell, WORLD_SIZE, axes_inversed);
     res.position = (_ApplyInverse(shifted_ray_origin, WORLD_SIZE, axes_inversed) - WORLD_SIZE / 2) * VOXEL_SIZE;
     res.hit = hit;
-    res.depth = dot(shifted_ray_origin - origin, dir);
-    res.normal = ivec3(step(time.xyz, time.yzx) * step(time.xyz, time.zxy)) * (2 * axes_inversed - 1);
+    res.depth = dot(shifted_ray_origin - origin, dir) * VOXEL_SIZE;
+    res.normal = (iteration > 0 ?
+        ivec3(step(time.xyz, time.yzx) * step(time.xyz, time.zxy)) :
+        ivec3(step(origin.xyz, origin.yzx) * step(origin.xyz, origin.zxy)))
+        * (2 * axes_inversed - 1);
     res.iterations = iteration;
 
     return res;

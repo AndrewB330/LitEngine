@@ -33,11 +33,11 @@ namespace lit::rendering::opengl {
 
         ~FrameBuffer();
 
-        void Bind(BindType type = BindType::Both);
+        void Bind(BindType type = BindType::Both) const;
 
-        void Unbind();
+        void Unbind() const;
 
-        std::vector<std::weak_ptr<Texture2D>> GetAttachmentTextures();
+        std::vector<std::weak_ptr<Texture2D>> GetAttachmentTextures() const;
 
         uint32_t GetWidth() const;
 
@@ -45,9 +45,9 @@ namespace lit::rendering::opengl {
 
         glm::uvec2 GetViewport() const;
 
-        void BlitTo(FrameBuffer &dest);
+        void BlitTo(FrameBuffer &dest) const;
 
-        void BlitToDefault();
+        void BlitToDefault() const;
 
         bool IsDefault();
 

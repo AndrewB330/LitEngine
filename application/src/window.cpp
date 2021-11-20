@@ -60,8 +60,6 @@ bool Window::ProcessEvent(const SDL_Event &event) {
 
     if (event.type == SDL_WINDOWEVENT && event.window.windowID == my_id) {
         if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
-            SDL_DestroyWindow(sdl_window);
-            sdl_window = nullptr;
             closed = true;
             m_logger->info("Window \"{}\" was closed by user", m_info.title.c_str());
         }

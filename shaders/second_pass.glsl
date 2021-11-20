@@ -4,10 +4,13 @@ layout(local_size_x = 32, local_size_y = 32) in;
 
 layout(rgba8, binding = 0) uniform image2D out_image;
 layout(r32f, binding = 1) uniform image2D in_image_approx_depth;
+layout(rgba8, binding = 2) uniform imageCube sky_box;
 
 #include "camera.glsl"
 
 #include "ray_tracing_voxel_world.glsl"
+
+#include "sky_box_utils.glsl"
 
 const int FIRST_PASS_CELL_SIZE = 8;
 
@@ -20,12 +23,9 @@ vec3 sample_color(ivec2 pixel_coords, vec2 pixel_offset) {
         return vec3(0);
     }
 
-    //dist = WorldConeCast(origin + dir*(distance + 1e-4), dir, 0.005);
-    ivec2 cone_coords = pixel_coords / FIRST_PASS_CELL_SIZE;
+    RayCastResult res = WorldRayCast(origin + dir * (distance + 1e-6), dir, 200);
 
-    RayCastResult res = WorldRayCast(origin + dir * (0 * VOXEL_SIZE + distance + 1e-4), dir, 200);
-
-    vec3 light = normalize(vec3(0.2, 1.0, 0.35));
+    vec3 light = normalize(vec3(1.9, 1.0, 0.35));
     if (res.hit) {
         float l = max(0, dot(light, res.normal)) * 0.8 + 0.2f;
         float r = float(res.voxel_data & 0x0000FFu) / 255.0f;
@@ -34,10 +34,15 @@ vec3 sample_color(ivec2 pixel_coords, vec2 pixel_offset) {
         float c = ((res.cell.x ^ res.cell.y ^ res.cell.z) & 32) > 0 ? 0.8 : 1.0;
         float ch = ((res.cell.x ^ res.cell.y ^ res.cell.z) & 512) > 0 ? 0.8 : 1.0;
 
-        //return vec3(res.iterations) / 32.0;
+        RayCastResult light_res = WorldRayCast(res.position + res.normal * 1e-5f, light, 200);
+
+        if (light_res.hit) {
+            return vec3(r, g, b) * l * 0.3f;
+        }
+
         return vec3(r, g, b) * l;
     }
-    return vec3(0);
+    return GetSkyBoxColor(dir).xyz;
 }
 
 void main() {
@@ -46,10 +51,7 @@ void main() {
         return;
     }
 
-    vec3 color1 = sample_color(pixel_coords, vec2(0.25, 0.25));
-    //vec3 color2 = sample_color(normalized_coords2);
-    //vec3 color3 = sample_color(normalized_coords3);
-    vec3 color4 = sample_color(pixel_coords, vec2(0.75, 0.75));
+    vec3 color = sample_color(pixel_coords, vec2(0.5, 0.5));
 
-    imageStore(out_image, pixel_coords, vec4((color1 /*+ color2 + color3*/ + color4) * 0.5, 1));
+    imageStore(out_image, pixel_coords, vec4(color, 1));
 }

@@ -2,6 +2,7 @@
 
 #include <lit/common/images/images.hpp>
 #include <lit/common/glm_ext/region.hpp>
+#include <filesystem>
 #include <vector>
 #include <memory>
 
@@ -153,5 +154,23 @@ namespace lit::rendering::opengl {
 
         std::unique_ptr<uint32_t> m_texture_id;
         Texture3DInfo m_info;
+    };
+
+    class TextureCube {
+    public:
+        static TextureCube Create(const std::filesystem::path & path);
+
+        ~TextureCube();
+
+        TextureCube(TextureCube &&) = default;
+
+        TextureCube &operator=(TextureCube &&) = default;
+
+        void BindToImage(int image_index);
+
+    private:
+        explicit TextureCube(uint32_t texture_id);
+
+        std::unique_ptr<uint32_t> m_texture_id;
     };
 }

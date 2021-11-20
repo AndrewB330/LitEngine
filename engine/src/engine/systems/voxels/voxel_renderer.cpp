@@ -108,6 +108,7 @@ void VoxelRenderer::Redraw(entt::registry &registry) {
     m_second_shader.Bind();
     m_frame_buffer.GetAttachmentTextures()[0].lock()->BindToImage(0);
     m_first_rt_pass_texture.BindToImage(1, true);
+    m_sky_box.BindToImage(2);
     m_frame_buffer.Bind();
     glClear(GL_COLOR_BUFFER_BIT);
     m_second_shader.Dispatch(glm::ivec3(camera.viewport.x, camera.viewport.y, 1));

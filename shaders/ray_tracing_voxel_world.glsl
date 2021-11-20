@@ -26,6 +26,7 @@ layout(std430, binding = 18) buffer ChunkInfoBuffer {
 };
 
 const float VOXEL_SIZE = 1.0 / 16.0;
+const float VOXEL_SIZE_INV = 16.0;
 
 struct RayCastResult {
     bool hit; // has hit any non-zero voxel?
@@ -82,7 +83,7 @@ bool _HasVoxelSlow(ivec3 cell, int lod) {
 }
 
 bool WorldHitBox(vec3 origin, vec3 dir, out float distance) {
-    origin = origin / VOXEL_SIZE + WORLD_SIZE / 2;
+    origin = origin * VOXEL_SIZE_INV + WORLD_SIZE / 2;
     vec3 t1 = (-origin) / dir;
     vec3 t2 = (WORLD_SIZE - origin) / dir;
     vec3 tin = min(t1, t2);
@@ -95,7 +96,7 @@ bool WorldHitBox(vec3 origin, vec3 dir, out float distance) {
 
 float WorldConeCast(vec3 origin, vec3 dir, float distance, float slope) {
     // Transform to local world coordinates!
-    origin = origin / VOXEL_SIZE + WORLD_SIZE / 2;
+    origin = origin * VOXEL_SIZE_INV + WORLD_SIZE / 2;
 
     float current_radius = max(1.0f, distance * slope * 1.5);
 
@@ -170,10 +171,12 @@ float WorldConeCast(vec3 origin, vec3 dir, float distance, float slope) {
 
 RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
     // Transform to local world coordinates!
-    origin = origin / VOXEL_SIZE + WORLD_SIZE / 2;
+    origin = origin * VOXEL_SIZE_INV + WORLD_SIZE * 0.5f;
 
     // ray_direction should be positive, inverse axes if needed
-    ivec3 signs = ivec3(sign(dir + 1e-4f));
+    ivec3 signs = ivec3(sign(dir));
+    // zero -> one
+    signs = ivec3(1) * (1 - abs(signs)) + signs;
     ivec3 axes_inversed = (1 - signs) >> 1;
 
     origin = _ApplyInverse(origin, WORLD_SIZE, axes_inversed);
@@ -189,32 +192,46 @@ RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
 
     int iteration = 0;
 
+    // first step, if we are outside of the boundaries
+    if (any(lessThan(cell, ivec3(0)))) {
+        time = ((cell | ((1 << lod) - 1)) + 1 - shifted_ray_origin) * ray_direction_inversed;
+        shifted_ray_origin += ((min(time.x, min(time.y, time.z))) + 1e-4f) * dir;
+        cell = ivec3(floor(shifted_ray_origin));
+    }
+
     RayCastResult res;
+    int min_bucket = 0;
     for (; iteration < max_iterations && all(lessThan(cell, WORLD_SIZE)); iteration++) {
         ivec3 cell_real = _ApplyInverse(cell, WORLD_SIZE, axes_inversed);
-        while (lod >= CHUNK_MAX_LOD && _HasChunk(cell_real, lod)) lod--;
+
+        //while (lod >= CHUNK_MAX_LOD && _HasChunk(cell_real, lod)) lod--;
+        lod -= int(lod - 3 >= CHUNK_MAX_LOD && _HasChunk(cell_real, lod - 3)) << 2;
+        lod -= int(lod - 1 >= CHUNK_MAX_LOD && _HasChunk(cell_real, lod - 1)) << 1;
+        lod -= int(lod >= CHUNK_MAX_LOD && _HasChunk(cell_real, lod));
+
         if (lod < CHUNK_MAX_LOD) {
             uint chunk_index = _GetChunk(cell_real, CHUNK_MAX_LOD);
             ChunkInfo chunk_info = buf_chunk_info[chunk_index];
-            lod = max(lod, int(chunk_info.bucket));
-            while (lod > chunk_info.bucket && _GetVoxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
+            lod = max(lod, max(min_bucket, int(chunk_info.bucket)));
+            while (lod > max(chunk_info.bucket, min_bucket) && _GetVoxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
                 lod--;
             }
-            if (lod == chunk_info.bucket && (res.voxel_data = _GetVoxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod)) != 0) {
+            if (lod == max(chunk_info.bucket, min_bucket) && (res.voxel_data = _GetVoxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod)) != 0) {
                 hit = true;
                 break;
             }
         }
 
         time = ((cell | ((1 << lod) - 1)) + 1 - shifted_ray_origin) * ray_direction_inversed;
-        shifted_ray_origin += (min(time.x, min(time.y, time.z)) + 1e-4) * dir;
+        shifted_ray_origin += ((min(time.x, min(time.y, time.z))) + 1e-4f) * dir;
 
-        cell = ivec3(shifted_ray_origin);
+        cell = ivec3(floor(shifted_ray_origin));
 
         ivec3 bit = findLSB(cell);
         lod = min(max(bit.x, max(bit.y, bit.z)), WORLD_MAX_LOD);
     }
     res.cell = _ApplyInverse(cell, WORLD_SIZE, axes_inversed);
+    res.position = (_ApplyInverse(shifted_ray_origin, WORLD_SIZE, axes_inversed) - WORLD_SIZE / 2) * VOXEL_SIZE;
     res.hit = hit;
     res.depth = dot(shifted_ray_origin - origin, dir);
     res.normal = ivec3(step(time.xyz, time.yzx) * step(time.xyz, time.zxy)) * (2 * axes_inversed - 1);

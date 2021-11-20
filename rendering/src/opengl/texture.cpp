@@ -439,3 +439,46 @@ void Texture3D::Update(void * data, int level) {
     spdlog::default_logger()->trace("Texture3D {}x{}x{} level {} updated.",
                                     m_info.width, m_info.height, m_info.depth, level);
 }
+
+TextureCube TextureCube::Create(const std::filesystem::path &path) {
+    uint32_t texture_id;
+    GL_CALL(glGenTextures(1, &texture_id));
+    GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id));
+    std::vector<std::string> names = {"right.png", "left.png", "up.png", "down.png", "back.png", "front.png"};
+    for(unsigned int i = 0; i < names.size(); i++)
+    {
+        auto image = common::ReadPNG_RGB((path / names[i]).string());
+        GL_CALL(glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGBA8, image.GetWidth(), image.GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.GetDataPointer()
+        ));
+
+        spdlog::default_logger()->trace("TextureCube side {} with size {}x{} loaded.",
+                                        i, image.GetWidth(), image.GetHeight());
+    }
+
+    GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+
+    return TextureCube(texture_id);
+}
+
+TextureCube::~TextureCube() {
+    if (m_texture_id) {
+        glDeleteTextures(1, m_texture_id.get());
+        m_texture_id.reset();
+    }
+}
+
+void TextureCube::BindToImage(int image_index) {
+    if (m_texture_id) {
+        GL_CALL(glBindImageTexture(image_index, *m_texture_id, 0, GL_TRUE, 0, GL_READ_ONLY, GL_RGBA8));
+    }
+}
+
+TextureCube::TextureCube(uint32_t texture_id): m_texture_id(std::make_unique<uint32_t>(texture_id)) {
+
+}

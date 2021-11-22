@@ -7,47 +7,54 @@ using namespace lit::engine;
 
 VoxelWorldGpuDataManager::VoxelWorldGpuDataManager() :
         m_world_data_buffer(UniformBuffer::Create({.size=WORLD_BUFFER_SIZE_BYTES})),
-        m_chunk_data_buffer(UniformBuffer::Create({.size=CHUNK_BUFFER_SIZE_BYTES})),
+        m_chunk_data_buffer(UniformBuffer::Create({ .size = CHUNK_BUFFER_SIZE_BYTES })),
+        m_chunk_compressed_data_buffer(UniformBuffer::Create({ .size = CHUNK_BUFFER_SIZE_BYTES / 2 })),
         m_chunk_info_buffer(UniformBuffer::Create({.size=INFO_BUFFER_SIZE_BYTES})) {
     for (uint32_t bucket = 0; bucket < BUCKET_NUM; bucket++) {
         m_allocator[bucket] =
-                FixedAllocator(BUCKET_SIZE_BYTES[bucket] / (GetChunkSizeDword(bucket) * sizeof(uint32_t)));
+                FixedAllocator(BUCKET_SIZE_BYTES[bucket] / (GetChunkLodSizeDword(bucket) * sizeof(uint32_t)));
     }
 }
 
-void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
+void VoxelWorldGpuDataManager::Update(VoxelGridSparseT<uint32_t> &world, glm::dvec3 position) {
     if (!m_world_registered) {
         m_world_registered = true;
 
-        world.WriteGridDataTo((VoxelWorld::ChunkIndexType *) m_world_data_buffer.GetHostPtr());
+        world.WriteGridDataTo((VoxelGridSparseT<uint32_t>::ChunkIndexType *) m_world_data_buffer.GetHostPtr());
 
         m_prev_world_version = world.GetVersion();
 
-        world.SetChunkCreatedCallback([&](VoxelWorld::ChunkIndexType index) {
+        world.SetChunkCreatedCallback([&](VoxelGridSparseT<uint32_t>::ChunkIndexType index) {
             m_sorted_chunk_indices.push_back(index);
             while (m_chunk_address.size() <= index) {
-                m_chunk_bucket.emplace_back(BUCKET_NUM - 1);
+                //TODO: !!! m_chunk_bucket.emplace_back(BUCKET_NUM - 1);
+                m_chunk_bucket.emplace_back(0);
                 m_chunk_address.emplace_back();
             }
 
             m_chunk_address[index] = m_allocator[m_chunk_bucket[index]].Allocate();
 
             uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
-                                      GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
+                GetChunkLodSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
 
-            world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
-                                   index, m_chunk_bucket[index]);
-            ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
+            uint32_t global_compress_address = ((GetChunkSizeDword(0) + 31) / 32) * index;
+
+            world.WriteChunkDataTo(((VoxelGridSparseT<uint32_t>::VoxelType*)m_chunk_data_buffer.GetHostPtr()) + global_address,
+                ((uint32_t*)m_chunk_compressed_data_buffer.GetHostPtr()) + global_compress_address,
+                index, m_chunk_bucket[index]);
+            ((ChunkInfo*)m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{ global_address, m_chunk_bucket[index] };
         });
 
-        world.SetChunkChangedCallback([&](VoxelWorld::ChunkIndexType index) {
+        world.SetChunkChangedCallback([&](VoxelGridSparseT<uint32_t>::ChunkIndexType index) {
             uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
-                                      GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
-            world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
-                                   m_chunk_bucket[index]);
+                GetChunkLodSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
+            uint32_t global_compress_address = ((GetChunkSizeDword(0) + 31) / 32) * index;
+            world.WriteChunkDataTo(((VoxelGridSparseT<uint32_t>::VoxelType*)m_chunk_data_buffer.GetHostPtr()) + global_address,
+                ((uint32_t*)m_chunk_compressed_data_buffer.GetHostPtr()) + global_compress_address,
+                index, m_chunk_bucket[index]);
         });
 
-        world.SetChunkDeletedCallback([&](VoxelWorld::ChunkIndexType index) {
+        world.SetChunkDeletedCallback([&](VoxelGridSparseT<uint32_t>::ChunkIndexType index) {
             m_sorted_chunk_indices.erase(
                     std::find(m_sorted_chunk_indices.begin(), m_sorted_chunk_indices.end(), index));
         });
@@ -57,7 +64,7 @@ void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
         if (m_prev_world_version != world.GetVersion()) {
             m_prev_world_version = world.GetVersion();
 
-            world.WriteGridDataTo((VoxelWorld::ChunkIndexType *) m_world_data_buffer.GetHostPtr());
+            world.WriteGridDataTo((VoxelGridSparseT<uint32_t>::ChunkIndexType *) m_world_data_buffer.GetHostPtr());
         }
     }
 
@@ -123,9 +130,12 @@ void VoxelWorldGpuDataManager::Update(VoxelWorld &world, glm::dvec3 position) {
             m_chunk_address[index] = m_allocator[m_current_bucket].Allocate();
 
             uint32_t global_address = GetBucketOffsetDword(m_chunk_bucket[index]) +
-                                      GetChunkSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
+                                      GetChunkLodSizeDword(m_chunk_bucket[index]) * m_chunk_address[index];
 
-            world.WriteChunkDataTo(((VoxelWorld::VoxelType *) m_chunk_data_buffer.GetHostPtr()) + global_address,
+            uint32_t global_compress_address = ((GetChunkSizeDword(0) + 31) / 32) * index;
+
+            world.WriteChunkDataTo(((VoxelGridSparseT<uint32_t>::VoxelType*)m_chunk_data_buffer.GetHostPtr()) + global_address,
+                                     ((uint32_t*)m_chunk_compressed_data_buffer.GetHostPtr()) + global_compress_address,
                                    index, m_chunk_bucket[index]);
             ((ChunkInfo *) m_chunk_info_buffer.GetHostPtr())[index] = ChunkInfo{global_address, m_chunk_bucket[index]};
 
@@ -142,9 +152,14 @@ UniformBuffer &VoxelWorldGpuDataManager::GetChunkDataBuffer() {
     return m_chunk_data_buffer;
 }
 
+UniformBuffer& lit::engine::VoxelWorldGpuDataManager::GetChunkCompressedDataBuffer()
+{
+    return m_chunk_compressed_data_buffer;
+}
+
 uint64_t VoxelWorldGpuDataManager::GetWorldLodOffsetDword(int lod) const {
     uint64_t res = 0;
-    uint64_t size = glm::compMul(VoxelWorld::GetChunkGridDims());
+    uint64_t size = glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims());
     for (int i = 0; i < lod; i++) {
         res += size;
         size >>= 3; // /=8
@@ -153,11 +168,11 @@ uint64_t VoxelWorldGpuDataManager::GetWorldLodOffsetDword(int lod) const {
 }
 
 uint64_t VoxelWorldGpuDataManager::GetWorldLodSizeDword(int lod) const {
-    return glm::compMul(VoxelWorld::GetChunkGridDims() >> lod);
+    return glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims() >> lod);
 }
 
 uint64_t VoxelWorldGpuDataManager::GetChunkLodSizeDword(int lod) const {
-    return (1 << ((VoxelWorld::CHUNK_SIZE_LOG - lod) * 3));
+    return (1 << ((VoxelGridSparseT<uint32_t>::CHUNK_SIZE_LOG - lod) * 3));
 }
 
 uint64_t VoxelWorldGpuDataManager::GetChunkLodOffsetDword(int bucket, int lod) const {
@@ -170,7 +185,7 @@ uint64_t VoxelWorldGpuDataManager::GetChunkLodOffsetDword(int bucket, int lod) c
 
 uint64_t VoxelWorldGpuDataManager::GetChunkSizeDword(int bucket) const {
     uint64_t res = 0;
-    for (int i = bucket; i <= VoxelWorld::CHUNK_SIZE_LOG; i++) {
+    for (int i = bucket; i <= VoxelGridSparseT<uint32_t>::CHUNK_SIZE_LOG; i++) {
         res += GetChunkLodSizeDword(i);
     }
     return res;
@@ -183,7 +198,7 @@ UniformBuffer &VoxelWorldGpuDataManager::GetChunkInfoBuffer() {
 uint64_t VoxelWorldGpuDataManager::GetBucketOffsetDword(uint32_t bucket) const {
     uint64_t res = 0;
     for (uint32_t i = 0; i < bucket; i++) {
-        res += m_allocator[i].GetSize() * GetChunkSizeDword(i);
+        res += m_allocator[i].GetSize() * GetChunkLodSizeDword(i);
     }
     return res;
 }

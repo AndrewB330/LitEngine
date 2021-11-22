@@ -1,6 +1,5 @@
 #include <lit/engine/components/transform.hpp>
 #include <lit/engine/components/tag.hpp>
-#include <lit/engine/entity_view.hpp>
 #include <lit/engine/components/camera.hpp>
 #include <lit/engine/scene.hpp>
 
@@ -50,4 +49,8 @@ EntityView Scene::CreteEntity(const std::string &name) {
     m_registry.get<TagComponent>(ent).tag =
             (name.empty() ? "Entity " + std::to_string(m_registry.size()) : name);
     return {ent, this};
+}
+
+lit::engine::EntityView::EntityView(entt::entity entity, Scene* scene):m_entity(entity), m_scene(scene)
+{
 }

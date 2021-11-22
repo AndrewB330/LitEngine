@@ -33,6 +33,8 @@ namespace lit::engine {
 
         uint32_t GetPtr() const;
 
+        size_t GetSizeBytes() const;
+
     private:
         uint32_t m_size;
         uint32_t m_ptr = 0;

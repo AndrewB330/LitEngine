@@ -1,4 +1,4 @@
-#include <lit/engine/systems/camera_pre_renderer.hpp>
+#include <lit/engine/systems/renderers/camera_pre_renderer.hpp>
 #include <lit/engine/components/camera.hpp>
 #include <GL/glew.h>
 

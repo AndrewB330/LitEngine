@@ -13,7 +13,7 @@ namespace lit::engine {
         static std::string GetShaderPath(const std::string &relative_shader_path);
 
     private:
-        inline static const std::string kAssetsRoot = "../assets/";
-        inline static const std::string kShadersRoot = "../shaders/";
+        inline static const std::string kAssetsRoot = "D:/Dev/LitEngine/assets/";
+        inline static const std::string kShadersRoot = "D:/Dev/LitEngine/shaders/";
     };
 }

@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FD0F5FD0-8F66-3022-9C51-1D7FF0F95D0D}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>ZERO_CHECK</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Dev\LitEngine\CMakeFiles\368b34308dc78299a10f4ffa2ebab182\generate.stamp.rule">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Checking Build System</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Dev/LitEngine/LitEngine.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckStructHasMember.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckSymbolExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCXXCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeRCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeSystem.cmake;D:\Dev\LitEngine\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\cmake\in\EnTTConfig.cmake.in;D:\Dev\LitEngine\_deps\entt-src\cmake\in\entt.pc.in;D:\Dev\LitEngine\_deps\glew-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glew-src\GeneratePkgConfig.cmake;D:\Dev\LitEngine\_deps\glm-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glm-src\glm\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\cmake\macros.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake\sdlchecks.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake_uninstall.cmake.in;D:\Dev\LitEngine\_deps\sdl-src\include\SDL_config.h.cmake;D:\Dev\LitEngine\_deps\spdlog-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\spdlog-src\cmake\ide.cmake;D:\Dev\LitEngine\_deps\spdlog-src\cmake\utils.cmake;D:\Dev\LitEngine\application\CMakeLists.txt;D:\Dev\LitEngine\common\CMakeLists.txt;D:\Dev\LitEngine\engine\CMakeLists.txt;D:\Dev\LitEngine\engine\imgui.cmake;D:\Dev\LitEngine\rendering\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Dev\LitEngine\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\entt-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\application\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\sdl-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glew-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\spdlog-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\common\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\glm\CMakeFiles\generate.stamp;D:\Dev\LitEngine\rendering\CMakeFiles\generate.stamp;D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Checking Build System</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Dev/LitEngine/LitEngine.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckStructHasMember.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckSymbolExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCXXCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeRCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeSystem.cmake;D:\Dev\LitEngine\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\cmake\in\EnTTConfig.cmake.in;D:\Dev\LitEngine\_deps\entt-src\cmake\in\entt.pc.in;D:\Dev\LitEngine\_deps\glew-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glew-src\GeneratePkgConfig.cmake;D:\Dev\LitEngine\_deps\glm-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glm-src\glm\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\cmake\macros.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake\sdlchecks.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake_uninstall.cmake.in;D:\Dev\LitEngine\_deps\sdl-src\include\SDL_config.h.cmake;D:\Dev\LitEngine\_deps\spdlog-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\spdlog-src\cmake\ide.cmake;D:\Dev\LitEngine\_deps\spdlog-src\cmake\utils.cmake;D:\Dev\LitEngine\application\CMakeLists.txt;D:\Dev\LitEngine\common\CMakeLists.txt;D:\Dev\LitEngine\engine\CMakeLists.txt;D:\Dev\LitEngine\engine\imgui.cmake;D:\Dev\LitEngine\rendering\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Dev\LitEngine\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\entt-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\application\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\sdl-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glew-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\spdlog-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\common\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\glm\CMakeFiles\generate.stamp;D:\Dev\LitEngine\rendering\CMakeFiles\generate.stamp;D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Checking Build System</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Dev/LitEngine/LitEngine.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckStructHasMember.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckSymbolExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCXXCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeRCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeSystem.cmake;D:\Dev\LitEngine\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\cmake\in\EnTTConfig.cmake.in;D:\Dev\LitEngine\_deps\entt-src\cmake\in\entt.pc.in;D:\Dev\LitEngine\_deps\glew-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glew-src\GeneratePkgConfig.cmake;D:\Dev\LitEngine\_deps\glm-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glm-src\glm\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\cmake\macros.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake\sdlchecks.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake_uninstall.cmake.in;D:\Dev\LitEngine\_deps\sdl-src\include\SDL_config.h.cmake;D:\Dev\LitEngine\_deps\spdlog-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\spdlog-src\cmake\ide.cmake;D:\Dev\LitEngine\_deps\spdlog-src\cmake\utils.cmake;D:\Dev\LitEngine\application\CMakeLists.txt;D:\Dev\LitEngine\common\CMakeLists.txt;D:\Dev\LitEngine\engine\CMakeLists.txt;D:\Dev\LitEngine\engine\imgui.cmake;D:\Dev\LitEngine\rendering\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Dev\LitEngine\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\entt-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\application\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\sdl-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glew-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\spdlog-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\common\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\glm\CMakeFiles\generate.stamp;D:\Dev\LitEngine\rendering\CMakeFiles\generate.stamp;D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Checking Build System</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Dev/LitEngine/LitEngine.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-AnyNewerVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCXXSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFileCXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckStructHasMember.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckSymbolExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckTypeSize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckCompilerFlag.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceRuns.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeCXXCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeRCCompiler.cmake;D:\Dev\LitEngine\CMakeFiles\3.22.0\CMakeSystem.cmake;D:\Dev\LitEngine\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\entt-src\cmake\in\EnTTConfig.cmake.in;D:\Dev\LitEngine\_deps\entt-src\cmake\in\entt.pc.in;D:\Dev\LitEngine\_deps\glew-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glew-src\GeneratePkgConfig.cmake;D:\Dev\LitEngine\_deps\glm-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\glm-src\glm\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\sdl-src\cmake\macros.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake\sdlchecks.cmake;D:\Dev\LitEngine\_deps\sdl-src\cmake_uninstall.cmake.in;D:\Dev\LitEngine\_deps\sdl-src\include\SDL_config.h.cmake;D:\Dev\LitEngine\_deps\spdlog-src\CMakeLists.txt;D:\Dev\LitEngine\_deps\spdlog-src\cmake\ide.cmake;D:\Dev\LitEngine\_deps\spdlog-src\cmake\utils.cmake;D:\Dev\LitEngine\application\CMakeLists.txt;D:\Dev\LitEngine\common\CMakeLists.txt;D:\Dev\LitEngine\engine\CMakeLists.txt;D:\Dev\LitEngine\engine\imgui.cmake;D:\Dev\LitEngine\rendering\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Dev\LitEngine\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\entt-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\application\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\sdl-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glew-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\spdlog-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\common\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\CMakeFiles\generate.stamp;D:\Dev\LitEngine\_deps\glm-build\glm\CMakeFiles\generate.stamp;D:\Dev\LitEngine\rendering\CMakeFiles\generate.stamp;D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

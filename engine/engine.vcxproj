@@ -1,0 +1,379 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FB46D0F6-8804-3BD3-92B4-659B6D050CAD}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>engine</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Dev\LitEngine\engine\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">engine.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">engine</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Dev\LitEngine\engine\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">engine.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">engine</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Dev\LitEngine\engine\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">engine.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">engine</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Dev\LitEngine\engine\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">engine.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">engine</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4103;4103</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4103;4103</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4103;4103</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4103;4103</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_LIBC;GLEW_STATIC;WIN32_MEAN_AND_LEAN;VC_EXTRALEAN;_CRT_SECURE_NO_WARNINGS;GLEW_NO_GLU;SPDLOG_COMPILED_LIB;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>D:\Dev\LitEngine\engine\include;D:\Dev\LitEngine\application\include;D:\Dev\LitEngine\_deps\sdl-src\include;D:\Dev\LitEngine\_deps\glew-src\include;D:\Dev\LitEngine\_deps\spdlog-src\include;D:\Dev\LitEngine\common\include;D:\Dev\LitEngine\_deps\glm-src;D:\Dev\LitEngine\rendering\include;D:\Dev\LitEngine\_deps\entt-src\src;D:\Dev\LitEngine\_deps\imgui-src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Dev\LitEngine\engine\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule D:/Dev/LitEngine/engine/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-file D:/Dev/LitEngine/engine/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;D:\Dev\LitEngine\engine\imgui.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule D:/Dev/LitEngine/engine/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-file D:/Dev/LitEngine/engine/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;D:\Dev\LitEngine\engine\imgui.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule D:/Dev/LitEngine/engine/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-file D:/Dev/LitEngine/engine/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;D:\Dev\LitEngine\engine\imgui.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule D:/Dev/LitEngine/engine/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/Dev/LitEngine -BD:/Dev/LitEngine --check-stamp-file D:/Dev/LitEngine/engine/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FetchContent\CMakeLists.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;D:\Dev\LitEngine\engine\imgui.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">D:\Dev\LitEngine\engine\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\viewer_app.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\viewer_window.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\scene.hpp" />
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_base.hpp" />
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_dense.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\resources_manager.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_renderer.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\camera.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\observer_input_controller.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\system.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\tag.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\allocator.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\fenwick_tree.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\debug_window.hpp" />
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_octree.hpp" />
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_sparse.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_gpu_data_manager.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_generator.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\sky_box.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\sky_box_renderer.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\camera_pre_renderer.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\tone_mapping_renderer.hpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_app.cpp" />
+    <ClCompile Include="src\engine\components\voxel_grid_dense.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_window.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\scene.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\resources_manager.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\player_controller.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_renderer.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\camera.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\allocator.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\fenwick_tree.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\debug_window.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\voxel_tree.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_world_gpu_data_manager.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_world_generator.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\sky_box.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\sky_box_renderer.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\camera_pre_renderer.cpp" />
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\tone_mapping_renderer.cpp" />
+    <ClInclude Include="include\lit\engine\algorithms\fast_noise_lite.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="D:\Dev\LitEngine\ZERO_CHECK.vcxproj">
+      <Project>{FD0F5FD0-8F66-3022-9C51-1D7FF0F95D0D}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\_deps\sdl-build\SDL2-static.vcxproj">
+      <Project>{44E1267E-B954-3604-ACD7-F1DCEEF101D5}</Project>
+      <Name>SDL2-static</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\_deps\sdl-build\SDL2main.vcxproj">
+      <Project>{04A7A457-9830-3598-8FA8-CE0527D30E70}</Project>
+      <Name>SDL2main</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\application\application.vcxproj">
+      <Project>{DF75D9E8-520C-3E84-9611-A33CBB466D52}</Project>
+      <Name>application</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\common\common.vcxproj">
+      <Project>{64C7AF17-F09F-3D8D-8D24-29F2478938BC}</Project>
+      <Name>common</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\engine\imgui.vcxproj">
+      <Project>{F5C2C94C-E573-3F49-B180-4F6927971A32}</Project>
+      <Name>imgui</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\_deps\glew-build\libglew_static.vcxproj">
+      <Project>{7539A380-4F36-3AA7-A15E-E5F243C74B6B}</Project>
+      <Name>libglew_static</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\rendering\rendering.vcxproj">
+      <Project>{4E6183A7-6C5B-3638-B55F-D01795AB6E0B}</Project>
+      <Name>rendering</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dev\LitEngine\_deps\spdlog-build\spdlog.vcxproj">
+      <Project>{2ABCD675-B37D-3057-A9C2-0EFA1F2A7169}</Project>
+      <Name>spdlog</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders\camera.glsl" />
+    <None Include="..\shaders\first_pass.glsl" />
+    <None Include="..\shaders\main.glsl" />
+    <None Include="..\shaders\ray_tracing_voxel_world.glsl" />
+    <None Include="..\shaders\sky_box.glsl" />
+    <None Include="..\shaders\sky_box_utils.glsl" />
+    <None Include="..\shaders\tone_mapping.glsl" />
+    <None Include="..\shaders\water.glsl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

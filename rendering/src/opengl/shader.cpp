@@ -26,6 +26,10 @@ std::string RunPreprocessor(const std::string &shader_path, int depth = 0) {
             shader_sources += RunPreprocessor(root_path + "/" + path, depth + 1);
             continue;
         }
+        if (line.starts_with("#version") && depth > 0) {
+            // skip all included version declarations
+            continue;
+        }
         shader_sources += line + "\n";
     }
     return shader_sources;

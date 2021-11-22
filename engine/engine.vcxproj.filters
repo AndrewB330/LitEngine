@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\components\voxel_grid_dense.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\resources_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\player_controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\allocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\fenwick_tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\debug_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\voxel_tree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_world_gpu_data_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_world_generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\sky_box.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\sky_box_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\camera_pre_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\tone_mapping_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\viewer_app.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\viewer_window.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_dense.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\resources_manager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_renderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\camera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\observer_input_controller.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\system.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\tag.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\allocator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\fenwick_tree.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\debug_window.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_octree.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_sparse.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_gpu_data_manager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_generator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\sky_box.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\sky_box_renderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\camera_pre_renderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\tone_mapping_renderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lit\engine\algorithms\fast_noise_lite.hpp" />
+    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_base.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Dev\LitEngine\engine\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E7C6B954-A566-3EE5-96D0-78D53F4E7F9E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{07CED8EA-D0EE-334F-8735-B729712C1D4E}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders\camera.glsl" />
+    <None Include="..\shaders\first_pass.glsl" />
+    <None Include="..\shaders\main.glsl" />
+    <None Include="..\shaders\ray_tracing_voxel_world.glsl" />
+    <None Include="..\shaders\sky_box.glsl" />
+    <None Include="..\shaders\sky_box_utils.glsl" />
+    <None Include="..\shaders\tone_mapping.glsl" />
+    <None Include="..\shaders\water.glsl" />
+  </ItemGroup>
+</Project>

@@ -16,7 +16,7 @@ vec2 wavedx(vec2 position, vec2 direction, float speed, float frequency, float t
 float getwaves(vec2 position, int iterations){
     float iter = 0.0;
     float phase = 15.0;
-    float speed = 4.0;
+    float speed = 1.5;
     float weight = 1.0;
     float w = 0.0;
     float ws = 0.0;
@@ -95,7 +95,7 @@ vec3 getColor(vec3 origin, vec3 ray, inout float depth) {
     vec3 hipos = orig + ray * hihit;
     vec3 lopos = orig + ray * lohit;
     float dist = raymarchwater(orig, hipos, lopos, WATER_DEPTH);
-    depth = dist;
+    depth = min(1e6, dist);
     vec3 pos = orig + ray * dist;
 
     vec3 N = normal(pos.xz, 0.01, WATER_DEPTH);

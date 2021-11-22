@@ -1,6 +1,6 @@
 #pragma once
 
-#include <lit/engine/systems/tone_mapping_renderer.hpp>
+#include <lit/engine/systems/renderers/tone_mapping_renderer.hpp>
 #include <lit/engine/components/camera.hpp>
 
 using namespace lit::engine;

@@ -28,7 +28,7 @@ namespace lit::engine {
         double m_roll = 0.0f;
 
         glm::dvec3 m_velocity = glm::dvec3();
-        double m_acceleration_factor = 60.0;
+        double m_acceleration_factor = 30.0;
         double m_friction_factor = 0.01;
 
         bool m_active = false;

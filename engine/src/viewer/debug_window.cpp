@@ -82,10 +82,6 @@ void DebugUI::Redraw() {
         dbg.recompile_shaders = true;
     }
 
-    ImGui::Checkbox("Update chunks", &(dbg.update_chunks));
-    ImGui::Checkbox("Phase0", &(dbg.phase0));
-    ImGui::Checkbox("Phase1", &(dbg.phase1));
-
     /*
 
     if (ImGui::CollapsingHeader("Buffers", ImGuiTreeNodeFlags_DefaultOpen)) {

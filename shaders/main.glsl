@@ -26,9 +26,9 @@ vec3 SampleColor(ivec2 pixel_coords, vec2 pixel_offset, inout float depth) {
 
     RayCastResult res = WorldRayCast(origin + dir * (distance + 1e-6), dir, 200);
 
-    vec3 light = normalize(vec3(1.9, 1.0, 0.35));
+    vec3 light = normalize(vec3(1.3, 1.0, 0.35));
     if (res.hit) {
-        float l = max(0, dot(light, res.normal)) * 0.8 + 0.2f;
+        float l = max(0, dot(light, res.normal)) * 0.7 + 0.3f;
         float r = float(res.voxel_data & 0x0000FFu) / 255.0f;
         float g = float((res.voxel_data & 0x00FF00u) >> 8) / 255.0f;
         float b = float((res.voxel_data & 0xFF0000u) >> 16) / 255.0f;
@@ -40,7 +40,7 @@ vec3 SampleColor(ivec2 pixel_coords, vec2 pixel_offset, inout float depth) {
         depth = res.depth + distance;
 
         if (light_res.hit) {
-            return vec3(r, g, b) * l * 0.3f;
+            return vec3(r, g, b) * l * 0.5f;
         }
 
         return vec3(r, g, b) * l;
@@ -53,7 +53,7 @@ vec3 SampleWaterColor(ivec2 pixel_coords, vec2 pixel_offset, inout float depth) 
     vec3 dir = GetCameraRayDirection(pixel_coords, pixel_offset);
     vec3 origin = GetCameraOrigin();
 
-    if (dir.y >= -0.01) {
+    if (dir.y >= -0.03) {
         return vec3(0);
     }
 
@@ -61,18 +61,42 @@ vec3 SampleWaterColor(ivec2 pixel_coords, vec2 pixel_offset, inout float depth) 
 }
 
 void main() {
+    int warp_index = int(gl_LocalInvocationID.y);
+    int thread_index = int(gl_LocalInvocationID.x);
+    ivec2 offset = ivec2((warp_index & 3) * 8, (warp_index >> 2) * 4);
+    ivec2 offset2 = ivec2((thread_index & 7), (thread_index >> 3));
+    //ivec2 pixel_coords = ivec2(gl_WorkGroupID * gl_WorkGroupSize) + offset + offset2;
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
     if (pixel_coords.x >= VIEWPORT.x || pixel_coords.y >= VIEWPORT.y) {
         return;
     }
 
-    float prev_depth = imageLoad(inout_depth, pixel_coords).r;
+    float prev_depth = 1e9;
 
     float depth = prev_depth;
-    vec3 color = SampleColor(pixel_coords, vec2(0.5, 0.5), depth);
+
+    vec3 sum = vec3(0);
+    int num = 0;
+
+    vec3 color = SampleColor(pixel_coords, vec2(0.25, 0.25), depth);
+    if (depth < prev_depth) {
+        num++;
+        sum += color;
+    }
+    color = SampleColor(pixel_coords, vec2(0.75, 0.25), depth);
+    if (depth < prev_depth) {
+        num++;
+        sum += color;
+    }
+    color = SampleColor(pixel_coords, vec2(0.75, 0.75), depth);
+    if (depth < prev_depth) {
+        num++;
+        sum += color;
+    }
+
 
     if (depth < prev_depth) {
-        imageStore(out_image, pixel_coords, vec4(color, 1));
+        imageStore(out_image, pixel_coords, vec4(sum / num, 1));
         imageStore(inout_depth, pixel_coords, vec4(depth));
         prev_depth = depth;
     }

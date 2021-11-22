@@ -1,3 +1,5 @@
+#version 450
+
 layout(std430, binding = 2) buffer GlobalInfoBuffer {
     ivec3 WORLD_SIZE;
     ivec3 CHUNK_SIZE;
@@ -8,12 +10,16 @@ layout(std430, binding = 2) buffer GlobalInfoBuffer {
     int GRID_LOD_OFFSET[16];
 };
 
-layout(std430, binding = 16) buffer WorldDataBuffer {
+layout (std430, binding = 16) buffer WorldDataBuffer {
     uint buf_world_data[];
 };
 
-layout(std430, binding = 17) buffer ChunkDataBuffer {
+layout (std430, binding = 17) buffer ChunkDataBuffer {
     uint buf_chunk_data[];
+};
+
+layout (std430, binding = 18) buffer ChunkCompressedDataBuffer {
+    uint buf_chunk_compressed_data[];
 };
 
 struct ChunkInfo {
@@ -21,7 +27,7 @@ struct ChunkInfo {
     uint bucket;
 };
 
-layout(std430, binding = 18) buffer ChunkInfoBuffer {
+layout (std430, binding = 19) buffer ChunkInfoBuffer {
     ChunkInfo buf_chunk_info[];
 };
 
@@ -56,6 +62,8 @@ bool _HasChunk(ivec3 cell, int lod) {
     return val != 0 && val != 0xFFFFFFFF;
 }
 
+
+
 uint _GetVoxel(uint chunk, uint bucket, uint chunk_offset, ivec3 cell, int lod) {
     cell = (cell & ((1 << CHUNK_MAX_LOD) - 1)) >> lod;
     return buf_chunk_data[
@@ -63,6 +71,16 @@ uint _GetVoxel(uint chunk, uint bucket, uint chunk_offset, ivec3 cell, int lod) 
     + (0x249249u & ((0x7FFFFFF8u << (3*(CHUNK_MAX_LOD - lod)))) & ~((0x7FFFFFF8u) << ((CHUNK_MAX_LOD-bucket)*3)))
     + cell.z + (cell.y << (CHUNK_MAX_LOD - lod)) + (cell.x << ((CHUNK_MAX_LOD - lod) << 1))
     ];
+}
+
+const uint DSIZE = ((0x49249249u & ~((~0u) << (3 * 5 + 1))) + 31) / 32;
+
+bool _HasVoxel(uint chunk, ivec3 cell, int lod) {
+    cell = (cell & ((1 << CHUNK_MAX_LOD) - 1)) >> lod;
+    uint offset = DSIZE * chunk;
+    int bit_index = int(0x9249u & ((0x7FFFFFF8u << (3*(CHUNK_MAX_LOD - lod)))))
+    + cell.z + (cell.y << (CHUNK_MAX_LOD - lod)) + (cell.x << ((CHUNK_MAX_LOD - lod) << 1));
+    return ((buf_chunk_compressed_data[offset + (bit_index >> 5)] >> (bit_index & 31)) & 1) > 0;
 }
 
 bool _HasVoxelSlow(ivec3 cell, int lod) {
@@ -180,7 +198,7 @@ RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
     ivec3 axes_inversed = (1 - signs) >> 1;
 
     origin = _ApplyInverse(origin, WORLD_SIZE, axes_inversed);
-    dir = normalize(abs(dir) + 1e-5f);
+    dir = normalize(abs(dir) + 1e-4f);
 
     vec3 ray_direction_inversed = 1.0f / dir; // to speed up division
     vec3 time = vec3(0); // time when we can hit a plane (Y-0-Z, X-0-Z, Y-0-X planes)
@@ -213,7 +231,7 @@ RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
             uint chunk_index = _GetChunk(cell_real, CHUNK_MAX_LOD);
             ChunkInfo chunk_info = buf_chunk_info[chunk_index];
             lod = max(lod, max(min_bucket, int(chunk_info.bucket)));
-            while (lod > max(chunk_info.bucket, min_bucket) && _GetVoxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod) != 0) {
+            while (lod > max(chunk_info.bucket, min_bucket) && _HasVoxel(chunk_index, cell_real, lod)) {
                 lod--;
             }
             if (lod == max(chunk_info.bucket, min_bucket) && (res.voxel_data = _GetVoxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod)) != 0) {

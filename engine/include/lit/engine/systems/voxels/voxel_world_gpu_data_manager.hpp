@@ -1,5 +1,5 @@
 #pragma once
-#include <lit/engine/components/voxel_world.hpp>
+#include <lit/engine/components/voxel_grid/voxel_grid_sparse.hpp>
 #include <lit/engine/algorithms/allocator.hpp>
 #include <lit/rendering/opengl/texture.hpp>
 #include <lit/rendering/opengl/uniform_buffer.hpp>
@@ -15,11 +15,13 @@ namespace lit::engine {
     public:
         VoxelWorldGpuDataManager();
 
-        void Update(VoxelWorld & world, glm::dvec3 position);
+        void Update(VoxelGridSparseT<uint32_t> & world, glm::dvec3 position);
 
         UniformBuffer & GetWorldDataBuffer();
 
-        UniformBuffer & GetChunkDataBuffer();
+        UniformBuffer& GetChunkDataBuffer();
+
+        UniformBuffer& GetChunkCompressedDataBuffer();
 
         UniformBuffer & GetChunkInfoBuffer();
 
@@ -38,7 +40,7 @@ namespace lit::engine {
     private:
 
         static inline const uint64_t WORLD_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 128; // 128MB
-        static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1024ll * 2; // 2GB
+        static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1024ll * 3; // 3GB
         static inline const uint64_t INFO_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 2; // 2MB
 
         static inline const int BUCKET_NUM = 3;
@@ -62,6 +64,7 @@ namespace lit::engine {
         std::vector<uint32_t> m_chunk_address; // relative address, inside bucket
         UniformBuffer m_chunk_data_buffer;
         UniformBuffer m_chunk_info_buffer;
+        UniformBuffer m_chunk_compressed_data_buffer;
 
         FixedAllocator m_allocator[BUCKET_NUM];
 

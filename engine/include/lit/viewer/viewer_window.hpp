@@ -3,7 +3,6 @@
 #include <lit/application/window_renderer.hpp>
 #include <lit/engine/systems/voxels/voxel_renderer.hpp>
 #include <lit/engine/scene.hpp>
-#include <lit/engine/entity_view.hpp>
 #include <memory>
 
 namespace lit::viewer {

@@ -1,9 +1,9 @@
 #include <lit/viewer/viewer_window.hpp>
 #include <lit/engine/systems/observer_input_controller.hpp>
-#include <lit/engine/systems/sky_box_renderer.hpp>
+#include <lit/engine/systems/renderers/sky_box_renderer.hpp>
 #include <lit/engine/components/sky_box.hpp>
-#include <lit/engine/systems/camera_pre_renderer.hpp>
-#include <lit/engine/systems/tone_mapping_renderer.hpp>
+#include <lit/engine/systems/renderers/camera_pre_renderer.hpp>
+#include <lit/engine/systems/renderers/tone_mapping_renderer.hpp>
 
 using namespace lit::viewer;
 using namespace lit::engine;

@@ -3,7 +3,7 @@
 #include <entt/entt.hpp>
 #include <lit/engine/algorithms/allocator.hpp>
 #include <lit/engine/resources_manager.hpp>
-#include <lit/engine/components/voxel_world.hpp>
+#include <lit/engine/components/voxel_grid/voxel_grid_sparse.hpp>
 #include <lit/rendering/opengl/api.hpp>
 #include <lit/rendering/opengl/shader.hpp>
 #include <lit/rendering/opengl/frame_buffer.hpp>

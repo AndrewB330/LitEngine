@@ -2,7 +2,6 @@
 #include <lit/application/platform.hpp>
 #include <lit/viewer/viewer_window.hpp>
 #include <lit/viewer/debug_window.hpp>
-#include <lit/engine/entity_view.hpp>
 #include <lit/engine/systems/observer_input_controller.hpp>
 #include <GL/glew.h>
 #include <random>
@@ -33,10 +32,10 @@ void EnableGlDebug() {
 }
 
 void InitScene(Scene & scene) {
-    auto &world = scene.CreteEntity("world").AddComponent<VoxelWorld>();
+    auto &world = scene.CreteEntity("world").AddComponent<VoxelGridSparseT<uint32_t>>();
 
     Timer timer;
-    world = VoxelWorldGenerator::Generate();
+    world = VoxelGridSparseT<uint32_t>Generator::Generate();
 
     spdlog::default_logger()->info("World created! Chunks: {}; Size: {} MB; Time: {} s",
                                    world.GetChunksNum(), world.GetSize() / 1000000, timer.GetTime());
@@ -59,8 +58,8 @@ void ViewerApp::StartApp(const spdlog::logger_ptr &logger) {
     WindowInfo game_window;
     game_window.title = "VoxelViewer (" + compiler + " " + architecture + " " + config + ")";
     game_window.maximized = false;
-    game_window.width = 1280;
-    game_window.height = 720;
+    game_window.width = 1920;
+    game_window.height = 1080;
 
     auto window = std::make_shared<ViewerWindow>(scene);
     auto debug = std::make_shared<DebugUI>();

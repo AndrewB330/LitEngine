@@ -68,7 +68,7 @@ glm::ivec3 FixedAllocator3D::Convert(uint32_t address) {
     return m_cell * glm::ivec3(x, y, address);
 }
 
-FixedAllocator::FixedAllocator(uint32_t n):m_size(n) {}
+FixedAllocator::FixedAllocator(uint32_t n):m_size(n == 0 ? std::numeric_limits<uint32_t>::max() : n) {}
 
 uint32_t FixedAllocator::Allocate() {
     if (m_pool.empty()) {

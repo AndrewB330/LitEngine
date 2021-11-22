@@ -1,4 +1,5 @@
 #include <lit/engine/systems/voxels/voxel_world_generator.hpp>
+#include <lit/engine/algorithms/fast_noise_lite.hpp>
 #include <random>
 
 using namespace lit::engine;
@@ -12,7 +13,7 @@ float random_sample_3d[SIZE_3D][SIZE_3D][SIZE_3D][3];
 
 uint32_t Vec3ToColorCode(glm::vec3 color) {
     color = glm::clamp(color, 0.0f, 1.0f);
-    return ((int) (color.x * 255)) | ((int) (color.y * 255) << 8) | ((int) (color.z * 255) << 16);
+    return ((int)(color.x * 255)) | ((int)(color.y * 255) << 8) | ((int)(color.z * 255) << 16);
 }
 
 uint32_t IVec3ToColorCode(glm::ivec3 color) {
@@ -38,8 +39,9 @@ void ResetRandom2D(uint32_t seed) {
                 j--;
                 continue;
             }
-            random_sample_2d[i][j][0] = u;
-            random_sample_2d[i][j][1] = v;
+            float l = sqrt(u * u + v * v);
+            random_sample_2d[i][j][0] = u / l;
+            random_sample_2d[i][j][1] = v / l;
         }
     }
 }
@@ -56,28 +58,31 @@ void ResetRandom3D(uint32_t seed) {
                     k--;
                     continue;
                 }
-                random_sample_3d[i][j][k][0] = u;
-                random_sample_3d[i][j][k][1] = v;
-                random_sample_3d[i][j][k][2] = r;
+                float l = sqrt(u * u + v * v + r * r);
+                random_sample_3d[i][j][k][0] = u / l;
+                random_sample_3d[i][j][k][1] = v / l;
+                random_sample_3d[i][j][k][2] = r / l;
             }
         }
     }
 }
 
-glm::vec2 Gradient2D(glm::ivec2 point) {
-    float u = random_sample_2d[point.x & (SIZE_2D - 1)][point.y & (SIZE_2D - 1)][0];
-    float v = random_sample_2d[point.x & (SIZE_2D - 1)][point.y & (SIZE_2D - 1)][1];
-    return glm::normalize(glm::vec2(u, v));
+inline glm::vec2 Gradient2D(glm::ivec2 point) {
+    point &= SIZE_2D - 1;
+    float u = random_sample_2d[point.x][point.y][0];
+    float v = random_sample_2d[point.x][point.y][1];
+    return glm::vec2(u, v);
 }
 
-glm::vec3 Gradient3D(glm::ivec3 point) {
-    float u = random_sample_3d[point.x & (SIZE_3D - 1)][point.y & (SIZE_3D - 1)][point.z & (SIZE_3D - 1)][0];
-    float v = random_sample_3d[point.x & (SIZE_3D - 1)][point.y & (SIZE_3D - 1)][point.z & (SIZE_3D - 1)][1];
-    float r = random_sample_3d[point.x & (SIZE_3D - 1)][point.y & (SIZE_3D - 1)][point.z & (SIZE_3D - 1)][2];
-    return glm::normalize(glm::vec3(u, v, r));
+inline glm::vec3 Gradient3D(glm::ivec3 point) {
+    point &= SIZE_3D - 1;
+    float u = random_sample_3d[point.x][point.y][point.z][0];
+    float v = random_sample_3d[point.x][point.y][point.z][1];
+    float r = random_sample_3d[point.x][point.y][point.z][2];
+    return glm::vec3(u, v, r);
 }
 
-float Fade(float t) {
+inline float Fade(float t) {
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
@@ -139,7 +144,7 @@ float SamplePerlinNoise3D(glm::vec3 p) {
 float SampleFractalNoise2D(glm::vec2 p, float wavelength, int levels = 8) {
     float res = 0.0f;
     for (int i = 0; i < levels; i++) {
-        float pow = (float) (1 << i);
+        float pow = (float)(1 << i);
         res += SamplePerlinNoise2D(p * pow / wavelength) / pow;
     }
     return glm::clamp(res, -1.0f, 1.0f);
@@ -148,7 +153,7 @@ float SampleFractalNoise2D(glm::vec2 p, float wavelength, int levels = 8) {
 float SampleFractalNoise3D(glm::vec3 p, float wavelength, int levels = 8) {
     float res = 0.0f;
     for (int i = 0; i < levels; i++) {
-        float pow = (float) (1 << i);
+        float pow = (float)(1 << i);
         res += SamplePerlinNoise3D(p * pow / wavelength) / pow;
     }
     return glm::clamp(res, -1.0f, 1.0f);
@@ -158,55 +163,76 @@ glm::ivec3 lerp(glm::ivec3 a, glm::ivec3 b, float t) {
     return glm::ivec3((1 - t) * glm::vec3(a) + t * glm::vec3(b));
 }
 
-VoxelWorld VoxelWorldGenerator::Generate() {
-    VoxelWorld world;
-    glm::ivec3 dims = world.GetDims();
+VoxelGridSparseT<uint32_t> VoxelWorldGenerator::Generate() {
+    VoxelGridSparseT<uint32_t> world;
+    glm::ivec3 dims = world.GetDimensions();
     int width = dims.x;
     int depth = dims.z;
-    glm::vec2 center{width / 2, depth / 2};
-    ResetRandom2D(0);
+    glm::vec2 center{ width / 2, depth / 2 };
+
     std::vector<std::vector<int>> height(width, std::vector<int>(depth));
     std::vector<std::vector<int>> height_grass(width, std::vector<int>(depth));
     std::vector<std::vector<int>> height_sand(width, std::vector<int>(depth));
 
+
+    FastNoiseLite fn;
+    fn.SetNoiseType(FastNoiseLite::NoiseType::NoiseType_Perlin);
+    fn.SetFractalType(FastNoiseLite::FractalType::FractalType_FBm);
+
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < depth; j++) {
-            glm::vec2 pos{i, j};
+            glm::vec2 pos{ i, j };
             float radius = glm::length(pos - center);
             float x = radius / (width * 0.5);
-            float noise = SampleFractalNoise2D(pos, 3000.0f, 9) - SamplePerlinNoise2D(pos / 3000.0f) * 0.3f;
-            height[i][j] = noise * 600 - x * x * 128;
-            height_sand[i][j] = height[i][j] * 0.7 + 8 + SampleFractalNoise2D(pos, 64, 4) * 6;
-            height_grass[i][j] = height[i][j] + SampleFractalNoise2D(pos, 3.3, 2) * 2 + 1;
+            //float noise = SampleFractalNoise2D(pos, 2000.0f, 9) - SamplePerlinNoise2D(pos / 2000.0f) * 0.3f;
+            float noise = fn.GetNoise(pos.x, pos.y, 1 / 3000.0f, 9) - fn.GetNoise(pos.x, pos.y, 1 / 3000.0f, 1) * 0.3;
+            height[i][j] = noise * 700 - x * x * 128;
+            height_sand[i][j] = height[i][j] * 0.7 + 8 + fn.GetNoise(pos.x, pos.y, 1 / 64.0f, 6) * 8;
+            height_grass[i][j] = height[i][j] + fn.GetNoise(pos.x, pos.y, 1 / 3.3f, 2) * 2 + 1;
         }
     }
 
     std::mt19937 rng;
     std::vector<glm::vec3> crowns;
-    std::uniform_real_distribution<float> xd(0, width);
-    std::uniform_real_distribution<float> zd(0, depth);
-    for (int i = 0; crowns.size() < 10; i++) {
-        glm::vec3 pos{xd(rng), 0, zd(rng)};
-        int h = height[(int) pos.x][(int) pos.z];
-        if (h > 8) {
-            pos.y += h + 4;
+    std::vector<float> sizes;
+    std::uniform_real_distribution<float> xd(0, width - 1);
+    std::uniform_real_distribution<float> zd(0, depth - 1);
+    std::uniform_real_distribution<float> sized(25, 75);
+
+    for (int i = 0; crowns.size() < 0; i++) {
+        glm::vec3 pos{ xd(rng), 0, zd(rng) };
+        int h = height[(int)pos.x][(int)pos.z];
+        pos.y += h + 4;
+        for (auto other : crowns) {
+            if (glm::distance(other, pos) < 120) h = 0;
+        }
+        if (h > 40) {
             crowns.push_back(pos);
+            sizes.push_back(sized(rng));
         }
     }
 
     ResetRandom3D(0);
 
-    world.SetGenerator([&](glm::ivec3 grid_position, VoxelWorld::ChunkRaw &chunk) {
-        for (int x = 0; x < VoxelWorld::CHUNK_SIZE; x++) {
-            for (int z = 0; z < VoxelWorld::CHUNK_SIZE; z++) {
-                int gx = x + grid_position.x * VoxelWorld::CHUNK_SIZE;
-                int gz = z + grid_position.z * VoxelWorld::CHUNK_SIZE;
+    
+    /*world.SetGenerator([&](glm::ivec3 grid_position, VoxelGridSparseT<uint32_t>::ChunkRaw& chunk) {
+        std::vector<glm::vec3> crowns_;
+        std::vector<float> sizes_;
+        for (int i = 0; i < crowns.size(); i++) {
+            if (glm::distance((glm::vec3(grid_position) + 0.5f) * (float)VoxelGridSparseT<uint32_t>::CHUNK_SIZE, crowns[i]) < 200) {
+                crowns_.push_back(crowns[i]);
+                sizes_.push_back(sizes[i]);
+            }
+        }
+        for (int x = 0; x < VoxelGridSparseT<uint32_t>::CHUNK_SIZE; x++) {
+            for (int z = 0; z < VoxelGridSparseT<uint32_t>::CHUNK_SIZE; z++) {
+                int gx = x + grid_position.x * VoxelGridSparseT<uint32_t>::CHUNK_SIZE;
+                int gz = z + grid_position.z * VoxelGridSparseT<uint32_t>::CHUNK_SIZE;
                 int h = height[gx][gz];
                 int hs = height_sand[gx][gz];
-                int h2 = std::max(h,
-                                  height_grass[gx][gz]); //h + SampleFractalNoise2D(glm::vec2{gx, gz}, 3.2, 2) * 2 + 1;
+                int h2 = std::max(h, height_grass[gx][gz]);
 
-                const int radius = 4;
+                const int radius = 3;
                 int min = h;
                 int max = h;
                 for (int dx = -radius; dx <= radius; dx++) {
@@ -219,73 +245,92 @@ VoxelWorld VoxelWorldGenerator::Generate() {
 
                 const int grass_depth = 7;
 
-                glm::vec3 nearest_crown {9999,9999,9999};
-                for(int i = 0; i < crowns.size(); i++) {
-                    if (glm::distance(crowns[i], glm::vec3(gx, h, gz)) < glm::distance(nearest_crown, glm::vec3(gx, h, gz))) {
-                        nearest_crown = crowns[i];
+                glm::vec3 nearest_crown{ 9999,9999,9999 };
+                int index = -1;
+                for (int i = 0; i < crowns_.size(); i++) {
+                    if (glm::distance(crowns_[i], glm::vec3(gx, h, gz)) < glm::distance(nearest_crown, glm::vec3(gx, h, gz))) {
+                        nearest_crown = crowns_[i];
+                        index = i;
                     }
                 }
 
-                for (int y = 0; y < VoxelWorld::CHUNK_SIZE; y++) {
-                    int gy = y + grid_position.y * VoxelWorld::CHUNK_SIZE;
+                for (int y = 0; y < VoxelGridSparseT<uint32_t>::CHUNK_SIZE; y++) {
+                    int gy = y + grid_position.y * VoxelGridSparseT<uint32_t>::CHUNK_SIZE;
 
-                    glm::vec3 pos{gx, gy, gz};
+                    glm::vec3 pos{ gx, gy, gz };
 
-                    float val = SampleFractalNoise3D(pos, 32, 6) + 0.5;
-                    val *= 32 + 9;
+                    if (index >= 0) {
+                        float val = SampleFractalNoise3D(pos, 11, 4) + 0.5;
+                        val = (val * 0.3 + 0.7) * sizes_[index];
 
-                    if (val > glm::distance(pos, nearest_crown)) {
-                        chunk[x][y][z] = IVec3ToColorCode({112, 224, 94});
-                        continue;
+                        if (val > glm::distance(pos, nearest_crown)) {
+                            const glm::ivec3 color1 = { 51, 212, 150 };
+                            const glm::ivec3 color2 = { 53, 156, 97 };
+
+                            const glm::ivec3 color3 = { 209, 202, 67 };
+                            const glm::ivec3 color4 = { 224, 184, 63 };
+
+                            float noise_a = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 7.3f, 4) * 1.8 + 0.5, 0.0,
+                                1.0);
+                            float noise_b = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 9.4f, 4) * 1.8 + 0.5, 0.0,
+                                1.0);
+                            float noise = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 1900.0f, 3) * 1.3 + 0.5, 0.0,
+                                1.0);
+
+                            chunk[x][y][z] = IVec3ToColorCode(
+                                lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
+                            continue;
+                        }
                     }
 
                     if (hs > h) {
                         if (gy < h) {
-                            chunk[x][y][z] = IVec3ToColorCode({255, 238, 130});
+                            chunk[x][y][z] = IVec3ToColorCode({ 255, 238, 130 });
                         }
                         continue;
                     }
                     if (max - min < grass_depth) {
                         if (gy < h2 && gy + grass_depth - (max - min) >= h2) {
                             // grass
-                            const glm::ivec3 color1 = {13, 217, 70};
-                            const glm::ivec3 color2 = {6, 191, 58};
+                            const glm::ivec3 color1 = { 13, 217, 70 };
+                            const glm::ivec3 color2 = { 6, 191, 58 };
 
-                            const glm::ivec3 color3 = {174, 194, 25};
-                            const glm::ivec3 color4 = {210, 217, 24};
+                            const glm::ivec3 color3 = { 174, 194, 25 };
+                            const glm::ivec3 color4 = { 210, 217, 24 };
 
-                            float noise_a = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 4.3f, 3) * 1.2 + 0.5, 0.0,
-                                                       1.0);
-                            float noise_b = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 3.4f, 3) * 1.2 + 0.5, 0.0,
-                                                       1.0);
-                            float noise = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 1900.0f, 3) * 1.3 + 0.5, 0.0,
-                                                     1.0);
+                            float noise_a = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 4.3f, 3) * 1.2 + 0.5, 0.0,
+                                1.0);
+                            float noise_b = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 3.4f, 3) * 1.2 + 0.5, 0.0,
+                                1.0);
+                            float noise = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 1900.0f, 3) * 1.3 + 0.5, 0.0,
+                                1.0);
 
                             chunk[x][y][z] = IVec3ToColorCode(
-                                    lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
+                                lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
                             continue;
                         }
                     }
 
                     if (gy < h) {
-                        const glm::ivec3 color1 = {105, 92, 64};
-                        const glm::ivec3 color2 = {94, 81, 53};
+                        const glm::ivec3 color1 = { 105, 92, 64 };
+                        const glm::ivec3 color2 = { 94, 81, 53 };
 
-                        const glm::ivec3 color3 = {138, 138, 138};
-                        const glm::ivec3 color4 = {110, 109, 109};
-                        float noise_a = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 13.3f, 3) * 1.3 + 0.5, 0.0, 1.0);
-                        float noise_b = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 16.4f, 3) * 1.3 + 0.5, 0.0, 1.0);
-                        float noise = glm::clamp(SampleFractalNoise3D({gx, gy, gz}, 400.0f, 3) * 2.9 + 0.5, 0.0, 1.0);
+                        const glm::ivec3 color3 = { 138, 138, 138 };
+                        const glm::ivec3 color4 = { 110, 109, 109 };
+                        float noise_a = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 13.3f, 3) * 1.3 + 0.5, 0.0, 1.0);
+                        float noise_b = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 16.4f, 3) * 1.3 + 0.5, 0.0, 1.0);
+                        float noise = glm::clamp(SampleFractalNoise3D({ gx, gy, gz }, 400.0f, 3) * 2.9 + 0.5, 0.0, 1.0);
                         chunk[x][y][z] = IVec3ToColorCode(
-                                lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
-                    } else {
+                            lerp(lerp(color1, color2, noise_a), lerp(color3, color4, noise_b), noise));
+                    }
+                    else {
                         // air
-                        break;
+                        continue;
                     }
                 }
             }
         }
-    });
+        });*/
 
     return world;
 }

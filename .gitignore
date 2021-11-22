@@ -8,3 +8,4 @@ _deps/
 Debug/
 Release/
 RelWithDebInfo/
+CMakeFiles/

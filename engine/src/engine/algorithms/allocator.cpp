@@ -86,6 +86,10 @@ void FixedAllocator::Free(uint32_t address) {
     m_pool.push_back(address);
 }
 
+size_t FixedAllocator::GetSizeBytes() const {
+    return sizeof(FixedAllocator) + m_pool.capacity() * sizeof(uint32_t);
+}
+
 bool FixedAllocator::CanAllocate() {
     return m_ptr < m_size || !m_pool.empty();
 }

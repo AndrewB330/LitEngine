@@ -12,9 +12,9 @@ using namespace lit::engine;
 VoxelRenderer::VoxelRenderer() {
     UpdateConstantUniforms();
 
-    auto &world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
-    world_info.world_size = VoxelGridSparseT<uint32_t>::GetDims();
-    world_info.chunk_size = VoxelGridSparseT<uint32_t>::GetChunkDims();
+    /*auto& world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
+    world_info.world_size = VoxelGridSparseT<uint32_t>::GetDimensions();
+    world_info.chunk_size = VoxelGridSparseT<uint32_t>::GetChunkDimensions();
     world_info.world_size_log = glm::log2(VoxelGridSparseT<uint32_t>::GetDims());
     world_info.chunk_size_log = glm::log2(VoxelGridSparseT<uint32_t>::GetChunkDims());
     world_info.world_max_lod = VoxelGridSparseT<uint32_t>::WORLD_SIZE_LOG;
@@ -23,7 +23,7 @@ VoxelRenderer::VoxelRenderer() {
     for (int i = 0; i < 10; i++) {
         world_info.grid_lod_offset[i] = offset;
         offset += glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims() >> i);
-    }
+    }*/
 }
 
 std::optional<std::tuple<CameraComponent&, TransformComponent&>>
@@ -96,7 +96,7 @@ void VoxelRenderer::Update(entt::registry &registry, double dt) {
 
     auto & [_, transform] = *res;
 
-    m_voxel_world_gpu_data_manager.Update(world, transform.translation * 16. + glm::dvec3(VoxelGridSparseT<uint32_t>::GetDims()) / 2.);
+    //m_voxel_world_gpu_data_manager.Update(world, transform.translation * 16. + glm::dvec3(VoxelGridSparseT<uint32_t>::GetDims()) / 2.);
 }
 
 /*void VoxelRenderer::RegisterGrid(entt::entity ent, VoxelGrid &grid) {

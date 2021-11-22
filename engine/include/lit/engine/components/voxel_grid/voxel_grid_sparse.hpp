@@ -52,12 +52,15 @@ namespace lit::engine {
 
         constexpr static glm::ivec3 GetChunkDimensions() { return glm::ivec3(CHUNK_SIZE); }
 
-        glm::ivec3 GetChunkGridDimensions() const { return VoxelGridBaseT<VoxelType>::GetDimensions() >> CHUNK_SIZE_LOG; }
+        glm::ivec3 GetChunkGridDimensions() const {
+            return VoxelGridBaseT<VoxelType>::GetDimensions() >> CHUNK_SIZE_LOG;
+        }
 
-        VoxelGridSparseT(const glm::ivec3& dimensions, const glm::dvec3& anchor)
-            :VoxelGridBaseT<VoxelType>(((glm::clamp(dimensions, 1, 1 << 15) - 1) | (CHUNK_SIZE - 1) + 1), anchor) {}
+        VoxelGridSparseT(const glm::ivec3 &dimensions, const glm::dvec3 &anchor)
+                : VoxelGridBaseT<VoxelType>(((glm::clamp(dimensions, 1, 1 << 15) - 1) | (CHUNK_SIZE - 1) + 1),
+                                            anchor) {}
 
-        void SetVoxel(const glm::ivec3& position, VoxelType value) override {
+        void SetVoxel(const glm::ivec3 &position, VoxelType value) override {
             glm::ivec3 chunk_grid_position = position >> CHUNK_SIZE_LOG;
             if (!IsValidChunk(chunk_grid_position)) {
                 return;
@@ -71,10 +74,10 @@ namespace lit::engine {
 
             if (chunk_index == 0) {
                 // Chunk is empty! We should create a new one.
-                chunk_index = CreateChunk();
+                chunk_index = CreateChunk(chunk_grid_position);
             }
 
-            auto& chunk = m_chunks[chunk_index];
+            auto &chunk = m_chunks[chunk_index];
             glm::ivec3 relative_position = position & (CHUNK_SIZE - 1);
 
             if (chunk[relative_position.x][relative_position.y][relative_position.z] == value) {
@@ -83,11 +86,16 @@ namespace lit::engine {
             }
 
             chunk[relative_position.x][relative_position.y][relative_position.z] = value;
-            InvokeOnVoxelChangedCallbacks(position, value);
-            InvokeOnChunkAnyChangeCallbacks(chunk_index, ChunkChangeType::Changed, position, chunk_grid_position, relative_position);
+            VoxelGridBaseT<VoxelType>::InvokeOnVoxelChangedCallbacks(position, value);
+            InvokeOnChunkAnyChangeCallbacks(chunk_index,
+                                            ChunkChangeType::Changed,
+                                            position,
+                                            chunk_grid_position,
+                                            relative_position,
+                                            0);
         }
 
-        VoxelType GetVoxel(const glm::ivec3& position) const override {
+        VoxelType GetVoxel(const glm::ivec3 &position) const override {
             glm::ivec3 chunk_grid_position = position >> CHUNK_SIZE_LOG;
             if (!IsValidChunk(chunk_grid_position)) {
                 return 0;
@@ -98,16 +106,19 @@ namespace lit::engine {
                 return 0;
             }
 
-            auto& chunk = m_chunks[chunk_index];
+            auto &chunk = m_chunks[chunk_index];
             glm::ivec3 relative_position = position & (CHUNK_SIZE - 1);
             return chunk[relative_position.x][relative_position.y][relative_position.z];
         };
 
-        void WriteGridDataTo(ChunkIndexType* destination) const {
-            memcpy(destination, m_chunk_grid.GetDataPointer(), glm::compMul(GetChunkGridDimensions()) * sizeof(ChunkIndexType));
+        void WriteGridDataTo(ChunkIndexType *destination) const {
+            memcpy(destination, m_chunk_grid.GetDataPointer(),
+                   glm::compMul(GetChunkGridDimensions()) * sizeof(ChunkIndexType));
         }
 
-        void WriteChunkDataTo(VoxelType* destination, uint32_t* dest_compressed, ChunkIndexType index, int min_lod = 0);
+        void WriteChunkDataTo(VoxelType *destination, ChunkIndexType index) {
+            memcpy(destination, (void *) &m_chunks[index], sizeof(ChunkData));
+        }
 
         enum class ChunkChangeType {
             Created,
@@ -116,12 +127,13 @@ namespace lit::engine {
         };
 
         using OnChunkAnyChangeCallback =
-            std::function<void(
+        std::function<void(
                 ChunkIndexType index,
                 ChunkChangeType change,
-                const glm::ivec3& global_position,
-                const glm::ivec3& chunk_grid_position,
-                const glm::ivec3& relative_position)>;
+                const glm::ivec3 &global_position,
+                const glm::ivec3 &chunk_grid_position,
+                const glm::ivec3 &relative_position,
+                VoxelType value)>;
 
         size_t AddOnChunkAnyChangeCallback(OnChunkAnyChangeCallback callback) {
             m_chunk_callbacks.emplace_back(std::move(callback));
@@ -134,12 +146,12 @@ namespace lit::engine {
 
         size_t GetSizeBytes() const override {
             return VoxelGridBaseT<VoxelType>::GetSizeBytes() - sizeof(VoxelGridBaseT<VoxelType>) +
-                sizeof(VoxelGridSparseT<VoxelType>) +
-                m_chunk_callbacks.capacity() * sizeof(OnChunkAnyChangeCallback) +
-                m_chunk_index_allocator.GetSizeBytes() - sizeof(FixedAllocator) +
-                m_chunks.size() * sizeof(ChunkData) +
-                m_positions.capacity() * sizeof(glm::ivec3) +
-                glm::compMul(m_chunk_grid.GetDimensions()) * sizeof(ChunkIndexType);
+                   sizeof(VoxelGridSparseT<VoxelType>) +
+                   m_chunk_callbacks.capacity() * sizeof(OnChunkAnyChangeCallback) +
+                   m_chunk_index_allocator.GetSizeBytes() - sizeof(FixedAllocator) +
+                   m_chunks.size() * sizeof(ChunkData) +
+                   m_positions.capacity() * sizeof(glm::ivec3) +
+                   glm::compMul(m_chunk_grid.GetDimensions()) * sizeof(ChunkIndexType);
         }
 
     private:
@@ -150,29 +162,35 @@ namespace lit::engine {
 
         bool IsValidChunk(glm::ivec3 chunk_grid_position) const {
             return glm::all(glm::greaterThanEqual(chunk_grid_position, glm::ivec3(0))) &&
-                glm::all(glm::lessThan(chunk_grid_position, GetChunkGridDimensions()));
+                   glm::all(glm::lessThan(chunk_grid_position, GetChunkGridDimensions()));
         }
 
         void InvokeOnChunkAnyChangeCallbacks(ChunkIndexType index,
                                              ChunkChangeType change,
-                                             const glm::ivec3& global_position,
-                                             const glm::ivec3& chunk_grid_position,
-                                             const glm::ivec3& relative_position) {
-            for (auto& callback : m_chunk_callbacks) {
+                                             const glm::ivec3 &global_position,
+                                             const glm::ivec3 &chunk_grid_position,
+                                             const glm::ivec3 &relative_position,
+                                             VoxelType value) {
+            for (auto &callback: m_chunk_callbacks) {
                 if (callback) {
-                    callback(index, change, global_position, chunk_grid_position, relative_position);
+                    callback(index, change, global_position, chunk_grid_position, relative_position, value);
                 }
             }
         }
 
         // Important: There is no check if chunk was already created!
-        ChunkIndexType CreateChunk(const glm::ivec3& chunk_grid_position) {
+        ChunkIndexType CreateChunk(const glm::ivec3 &chunk_grid_position) {
             ChunkIndexType index = m_chunk_index_allocator.Allocate();
             if (index >= m_chunks.size()) {
                 m_chunks.emplace_back();
                 m_positions.emplace_back(chunk_grid_position);
             }
-            InvokeOnChunkAnyChangeCallbacks(index, ChunkChangeType::Created, glm::ivec3(), chunk_grid_position, glm::ivec3());
+            InvokeOnChunkAnyChangeCallbacks(index,
+                                            ChunkChangeType::Created,
+                                            glm::ivec3(),
+                                            chunk_grid_position,
+                                            glm::ivec3(),
+                                            0);
             return index;
         }
 

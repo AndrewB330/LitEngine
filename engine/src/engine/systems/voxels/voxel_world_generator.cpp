@@ -164,7 +164,7 @@ glm::ivec3 lerp(glm::ivec3 a, glm::ivec3 b, float t) {
 }
 
 VoxelGridSparseT<uint32_t> VoxelWorldGenerator::Generate() {
-    VoxelGridSparseT<uint32_t> world;
+    VoxelGridSparseT<uint32_t> world({512, 512, 512}, {0.0, 0.0, 0.0});
     glm::ivec3 dims = world.GetDimensions();
     int width = dims.x;
     int depth = dims.z;

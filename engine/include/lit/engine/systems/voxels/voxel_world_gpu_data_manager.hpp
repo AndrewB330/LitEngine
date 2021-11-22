@@ -40,7 +40,7 @@ namespace lit::engine {
     private:
 
         static inline const uint64_t WORLD_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 128; // 128MB
-        static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1024ll * 3; // 3GB
+        static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 1024ll * 1; // 3GB
         static inline const uint64_t INFO_BUFFER_SIZE_BYTES = 1024ll * 1024ll * 2; // 2MB
 
         static inline const int BUCKET_NUM = 3;

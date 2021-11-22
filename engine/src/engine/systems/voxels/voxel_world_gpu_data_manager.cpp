@@ -17,7 +17,7 @@ VoxelWorldGpuDataManager::VoxelWorldGpuDataManager() :
 }
 
 void VoxelWorldGpuDataManager::Update(VoxelGridSparseT<uint32_t> &world, glm::dvec3 position) {
-    if (!m_world_registered) {
+    /*if (!m_world_registered) {
         m_world_registered = true;
 
         world.WriteGridDataTo((VoxelGridSparseT<uint32_t>::ChunkIndexType *) m_world_data_buffer.GetHostPtr());
@@ -141,7 +141,7 @@ void VoxelWorldGpuDataManager::Update(VoxelGridSparseT<uint32_t> &world, glm::dv
 
             m_chunks_in_current_bucket++;
         }
-    }
+    }*/
 }
 
 UniformBuffer &VoxelWorldGpuDataManager::GetWorldDataBuffer() {
@@ -159,7 +159,7 @@ UniformBuffer& lit::engine::VoxelWorldGpuDataManager::GetChunkCompressedDataBuff
 
 uint64_t VoxelWorldGpuDataManager::GetWorldLodOffsetDword(int lod) const {
     uint64_t res = 0;
-    uint64_t size = glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims());
+    uint64_t size = 0; // glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims());
     for (int i = 0; i < lod; i++) {
         res += size;
         size >>= 3; // /=8
@@ -168,7 +168,8 @@ uint64_t VoxelWorldGpuDataManager::GetWorldLodOffsetDword(int lod) const {
 }
 
 uint64_t VoxelWorldGpuDataManager::GetWorldLodSizeDword(int lod) const {
-    return glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims() >> lod);
+    //return glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims() >> lod);
+    return 0;
 }
 
 uint64_t VoxelWorldGpuDataManager::GetChunkLodSizeDword(int lod) const {

@@ -32,13 +32,11 @@ void EnableGlDebug() {
 }
 
 void InitScene(Scene & scene) {
-    auto &world = scene.CreteEntity("world").AddComponent<VoxelGridSparseT<uint32_t>>();
+    auto &world = scene.CreteEntity("world").AddComponent<VoxelGridSparseT<uint32_t>>(glm::ivec3{512, 512, 512}, glm::dvec3{0.0, 0.0, 0.0});
 
     Timer timer;
-    world = VoxelGridSparseT<uint32_t>Generator::Generate();
+    world = VoxelWorldGenerator::Generate();
 
-    spdlog::default_logger()->info("World created! Chunks: {}; Size: {} MB; Time: {} s",
-                                   world.GetChunksNum(), world.GetSize() / 1000000, timer.GetTime());
 }
 
 void ViewerApp::StartApp(const spdlog::logger_ptr &logger) {

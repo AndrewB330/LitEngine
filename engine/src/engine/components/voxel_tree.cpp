@@ -1,4 +1,4 @@
-#include <lit/engine/components/voxel_tree.hpp>
+#include <lit/engine/components/voxel_grid/voxel_grid_octree.hpp>
 
 using namespace lit::engine;
 

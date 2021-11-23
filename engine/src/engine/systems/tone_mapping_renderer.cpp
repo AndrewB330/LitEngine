@@ -6,9 +6,11 @@
 using namespace lit::engine;
 using namespace lit::rendering::opengl;
 
-void ToneMappingRenderer::Redraw(entt::registry &registry) {
-    for(auto entity : registry.view<CameraComponent>()) {
-        auto & camera = registry.get<CameraComponent>(entity);
+lit::engine::ToneMappingRenderer::ToneMappingRenderer(entt::registry& registry) : System(registry) {}
+
+void ToneMappingRenderer::Redraw(double dt) {
+    for(auto entity : m_registry.view<CameraComponent>()) {
+        auto & camera = m_registry.get<CameraComponent>(entity);
 
         camera.GetFrameBuffer().GetAttachmentTextures()[0].lock()->BindToImage(0, ImageAccess::ReadWrite);
 

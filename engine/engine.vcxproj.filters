@@ -4,9 +4,6 @@
     <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\components\voxel_grid_dense.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,7 +63,16 @@
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\scene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_dense.hpp">
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_base.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_dense.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_sparse.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_octree.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\resources_manager.hpp">
@@ -96,12 +102,6 @@
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\debug_window.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_octree.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_sparse.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_gpu_data_manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -120,8 +120,10 @@
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\tone_mapping_renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\lit\engine\algorithms\fast_noise_lite.hpp" />
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_base.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_sparse_lod_data.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lit\engine\systems\voxels\voxel_grid_lod_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\Dev\LitEngine\engine\CMakeLists.txt" />
@@ -133,15 +135,5 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{07CED8EA-D0EE-334F-8735-B729712C1D4E}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\shaders\camera.glsl" />
-    <None Include="..\shaders\first_pass.glsl" />
-    <None Include="..\shaders\main.glsl" />
-    <None Include="..\shaders\ray_tracing_voxel_world.glsl" />
-    <None Include="..\shaders\sky_box.glsl" />
-    <None Include="..\shaders\sky_box_utils.glsl" />
-    <None Include="..\shaders\tone_mapping.glsl" />
-    <None Include="..\shaders\water.glsl" />
   </ItemGroup>
 </Project>

@@ -9,7 +9,10 @@ namespace lit::engine {
     // todo: post processing renderer?
     class ToneMappingRenderer : public RenderingSystem {
     public:
-        void Redraw(entt::registry &registry) override;
+
+        ToneMappingRenderer(entt::registry& registry);
+
+        void Redraw(double dt) override;
 
         ~ToneMappingRenderer() override = default;
 

@@ -7,7 +7,10 @@ namespace lit::engine {
 
     class CameraPreRenderer : public RenderingSystem {
     public:
-        void Redraw(entt::registry &registry) override;
+
+        CameraPreRenderer(entt::registry& registry);
+
+        void Redraw(double dt) override;
 
         ~CameraPreRenderer() override = default;
 

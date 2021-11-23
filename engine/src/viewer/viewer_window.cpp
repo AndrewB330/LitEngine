@@ -4,6 +4,7 @@
 #include <lit/engine/components/sky_box.hpp>
 #include <lit/engine/systems/renderers/camera_pre_renderer.hpp>
 #include <lit/engine/systems/renderers/tone_mapping_renderer.hpp>
+#include <lit/engine/systems/voxels/voxel_grid_lod_manager.hpp>
 
 using namespace lit::viewer;
 using namespace lit::engine;
@@ -18,6 +19,7 @@ bool lit::viewer::ViewerWindow::Init() {
 
     m_scene.AddSystem<CameraPreRenderer>();
     m_scene.AddSystem<SkyBoxRenderer>();
+    m_scene.AddSystem<VoxelGridLodManager<uint32_t>>();
     m_scene.AddSystem<VoxelRenderer>();
     m_scene.AddSystem<ToneMappingRenderer>();
     m_scene.AddSystem<ObserverInputController>(m_observer.GetEntity());

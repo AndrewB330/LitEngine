@@ -284,8 +284,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\viewer_app.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\viewer_window.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\scene.hpp" />
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_base.hpp" />
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_dense.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_base.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_dense.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_sparse.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_octree.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\resources_manager.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_renderer.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\camera.hpp" />
@@ -295,16 +297,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\allocator.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\fenwick_tree.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\debug_window.hpp" />
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_octree.hpp" />
-    <ClInclude Include="include\lit\engine\components\voxel_grid\voxel_grid_sparse.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_gpu_data_manager.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_generator.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\sky_box.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\sky_box_renderer.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\camera_pre_renderer.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\tone_mapping_renderer.hpp" />
+    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\voxel_grid\voxel_grid_sparse_lod_data.hpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_app.cpp" />
-    <ClCompile Include="src\engine\components\voxel_grid_dense.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\viewer_window.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\scene.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\resources_manager.cpp" />
@@ -321,7 +321,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\sky_box_renderer.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\camera_pre_renderer.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\tone_mapping_renderer.cpp" />
-    <ClInclude Include="include\lit\engine\algorithms\fast_noise_lite.hpp" />
+    <ClInclude Include="include\lit\engine\systems\voxels\voxel_grid_lod_manager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="D:\Dev\LitEngine\ZERO_CHECK.vcxproj">
@@ -362,16 +362,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{2ABCD675-B37D-3057-A9C2-0EFA1F2A7169}</Project>
       <Name>spdlog</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\shaders\camera.glsl" />
-    <None Include="..\shaders\first_pass.glsl" />
-    <None Include="..\shaders\main.glsl" />
-    <None Include="..\shaders\ray_tracing_voxel_world.glsl" />
-    <None Include="..\shaders\sky_box.glsl" />
-    <None Include="..\shaders\sky_box_utils.glsl" />
-    <None Include="..\shaders\tone_mapping.glsl" />
-    <None Include="..\shaders\water.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

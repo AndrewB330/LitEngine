@@ -10,13 +10,13 @@ namespace lit::engine {
 
     class ObserverInputController : public UserInputSystem, public BasicSystem {
     public:
-        explicit ObserverInputController(entt::entity player);
+        explicit ObserverInputController(entt::registry & registry, entt::entity player);
 
         ~ObserverInputController() override = default;
 
-        bool ProcessInput(entt::registry &registry, const UserInput &input) override;
+        bool ProcessInput(const UserInput &input) override;
 
-        void Update(entt::registry &registry, double dt) override;
+        void Update(double dt) override;
 
     private:
         entt::entity m_player;

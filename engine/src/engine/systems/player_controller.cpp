@@ -11,9 +11,9 @@ constexpr glm::dvec3 RIGHT = glm::dvec3(1, 0, 0);
 constexpr glm::dvec3 UP = glm::dvec3(0, 1, 0);
 constexpr glm::dvec3 DOWN = glm::dvec3(0, -1, 0);
 
-ObserverInputController::ObserverInputController(entt::entity player) : m_player(player) {}
+ObserverInputController::ObserverInputController(entt::registry & registry, entt::entity player) : System(registry), m_player(player) {}
 
-bool ObserverInputController::ProcessInput(entt::registry &registry, const UserInput &input) {
+bool ObserverInputController::ProcessInput(const UserInput &input) {
     auto event = input.event;
     if (m_active && event.type == SDL_MOUSEMOTION) {
         m_pitch += static_cast<double>(event.motion.yrel) / 500.0f;
@@ -43,8 +43,8 @@ bool ObserverInputController::ProcessInput(entt::registry &registry, const UserI
     return false;
 }
 
-void ObserverInputController::Update(entt::registry &registry, double dt) {
-    auto &transform = registry.get<Transform3d>(m_player);
+void ObserverInputController::Update(double dt) {
+    auto &transform = m_registry.get<Transform3d>(m_player);
 
     transform.translation += (m_velocity * dt);
 

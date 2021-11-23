@@ -11,14 +11,16 @@ struct CameraInfo {
     glm::ivec2 viewport;
 };
 
-void CameraPreRenderer::Redraw(entt::registry &registry) {
-    for(auto entity : registry.view<CameraComponent, TransformComponent>()) {
+lit::engine::CameraPreRenderer::CameraPreRenderer(entt::registry& registry): System(registry) {}
+
+void CameraPreRenderer::Redraw(double dt) {
+    for(auto entity : m_registry.view<CameraComponent, TransformComponent>()) {
         if (m_indices.find(entity) == m_indices.end()) {
             m_indices[entity] = m_uniform_buffers.size();
             m_uniform_buffers.push_back(UniformBuffer::Create(UniformBufferInfo{.size=sizeof(CameraInfo)}));
         }
-        auto & camera = registry.get<CameraComponent>(entity);
-        auto & transform = registry.get<TransformComponent>(entity);
+        auto & camera = m_registry.get<CameraComponent>(entity);
+        auto & transform = m_registry.get<TransformComponent>(entity);
 
         m_uniform_buffers[m_indices[entity]].Bind(1);
 

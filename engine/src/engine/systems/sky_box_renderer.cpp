@@ -8,11 +8,13 @@
 using namespace lit::engine;
 using namespace lit::rendering::opengl;
 
-void SkyBoxRenderer::Redraw(entt::registry &registry) {
-    for(auto entity : registry.view<CameraComponent, TransformComponent, SkyBoxComponent>()) {
-        auto & camera = registry.get<CameraComponent>(entity);
-        auto & sky_box = registry.get<SkyBoxComponent>(entity);
-        auto & transform = registry.get<TransformComponent>(entity);
+lit::engine::SkyBoxRenderer::SkyBoxRenderer(entt::registry& registry) : System(registry) {}
+
+void SkyBoxRenderer::Redraw(double dt) {
+    for (auto entity : m_registry.view<CameraComponent, TransformComponent, SkyBoxComponent>()) {
+        auto& camera = m_registry.get<CameraComponent>(entity);
+        auto& sky_box = m_registry.get<SkyBoxComponent>(entity);
+        auto& transform = m_registry.get<TransformComponent>(entity);
 
         sky_box.GetTextureCube().BindToImage(2);
 

@@ -19,13 +19,13 @@ namespace lit::engine {
 
     class VoxelRenderer : public RenderingSystem, public BasicSystem {
     public:
-        VoxelRenderer();
+        VoxelRenderer(entt::registry & registry);
 
         ~VoxelRenderer() override = default;
 
-        void Redraw(entt::registry &registry) override;
+        void Redraw(double dt) override;
 
-        void Update(entt::registry &registry, double dt) override;
+        void Update(double dt) override;
 
     private:
 

@@ -8,7 +8,10 @@ namespace lit::engine {
 
     class SkyBoxRenderer : public RenderingSystem {
     public:
-        void Redraw(entt::registry &registry) override;
+
+        SkyBoxRenderer(entt::registry& registry);
+
+        void Redraw(double dt) override;
 
         ~SkyBoxRenderer() override = default;
 

@@ -14,18 +14,29 @@ namespace lit::engine {
     public:
         Scene() = default;
 
-        bool OnInput(const UserInput &input);
+        bool OnInput(const UserInput& input);
 
         void OnRedraw(glm::uvec2 viewport, double dt);
 
         void OnUpdate(double dt);
 
         template<typename T, typename...Args>
-        void AddSystem(Args &&...args) {
-            m_systems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+        T& AddSystem(Args &&...args) {
+            m_systems.emplace_back(std::make_unique<T>(m_registry, std::forward<Args>(args)...));
+            return dynamic_cast<T&>(*m_systems.back());
         }
 
-        EntityView CreteEntity(const std::string & name);
+        template<typename T>
+        std::optional<T&> GetSystem() {
+            for (auto& system : m_systems) {
+                if (T& v = dynamic_cast<T&>(*system)) {
+                    return v;
+                }
+            }
+            return std::nullopt;
+        }
+
+        EntityView CreteEntity(const std::string& name);
 
     protected:
         friend class EntityView;
@@ -45,17 +56,17 @@ namespace lit::engine {
         }
 
         template<typename T>
-        T &GetComponent() const {
+        T& GetComponent() const {
             return m_scene->m_registry.get<T>(m_entity);
         }
 
         template<typename T, typename ...Args>
-        T &AddComponent(Args &&...args) const {
+        T& AddComponent(Args &&...args) const {
             return m_scene->m_registry.emplace<T>(m_entity, std::forward<Args>(args)...);
         }
 
         template<typename T>
-        T &RemoveComponent() const {
+        T& RemoveComponent() const {
             return m_scene->m_registry.remove<T>(m_entity);
         }
 
@@ -70,10 +81,10 @@ namespace lit::engine {
     private:
         friend class Scene;
 
-        EntityView(entt::entity entity, Scene *scene);
+        EntityView(entt::entity entity, Scene* scene);
 
-        entt::entity m_entity{entt::null};
-        Scene *m_scene{nullptr};
+        entt::entity m_entity{ entt::null };
+        Scene* m_scene{ nullptr };
     };
 
 }

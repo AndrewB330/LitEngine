@@ -6,10 +6,11 @@
 #include <lit/viewer/debug_options.hpp>
 #include <glm/gtc/integer.hpp>
 #include <lit/common/time_utils.hpp>
+#include <lit/engine/systems/voxels/voxel_grid_lod_manager.hpp>
 
 using namespace lit::engine;
 
-VoxelRenderer::VoxelRenderer() {
+VoxelRenderer::VoxelRenderer(entt::registry & registry) : System(registry) {
     UpdateConstantUniforms();
 
     /*auto& world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
@@ -61,10 +62,10 @@ void VoxelRenderer::UpdateShader() {
 
 
 float timee = 0.0;
-void VoxelRenderer::Redraw(entt::registry &registry) {
+void VoxelRenderer::Redraw(double dt) {
     common::Timer timer;
 
-    auto res = GetCamera(registry);
+    auto res = GetCamera(m_registry);
 
     if (!res) {
         return;
@@ -86,9 +87,12 @@ void VoxelRenderer::Redraw(entt::registry &registry) {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 }
 
-void VoxelRenderer::Update(entt::registry &registry, double dt) {
-    auto &world = registry.get<VoxelGridSparseT<uint32_t>>(registry.view<VoxelGridSparseT<uint32_t>>()[0]);
-    auto res = GetCamera(registry);
+void VoxelRenderer::Update(double dt) {
+    auto &world = m_registry.get<VoxelGridSparseT<uint32_t>>(m_registry.view<VoxelGridSparseT<uint32_t>>()[0]);
+    auto res = GetCamera(m_registry);
+
+    /*VoxelGridLodManager<uint32_t> mgr;
+    mgr.CommitChanges(m_registry);*/
 
     if (!res) {
         return;

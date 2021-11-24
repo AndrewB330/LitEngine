@@ -17,8 +17,8 @@ set(
         include/lit/engine/systems/observer_input_controller.hpp
         include/lit/engine/systems/system.hpp
         include/lit/engine/components/tag.hpp
-        include/lit/engine/algorithms/allocator.hpp
-        include/lit/engine/algorithms/fenwick_tree.hpp
+        include/lit/engine/utilities/allocator.hpp
+        include/lit/engine/utilities/fenwick_tree.hpp
         include/lit/viewer/debug_window.hpp
         include/lit/engine/systems/voxels/voxel_world_gpu_data_manager.hpp 
 		include/lit/engine/systems/voxels/voxel_world_generator.hpp 

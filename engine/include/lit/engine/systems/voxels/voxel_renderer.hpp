@@ -1,7 +1,7 @@
 #pragma once
 
 #include <entt/entt.hpp>
-#include <lit/engine/algorithms/allocator.hpp>
+#include <lit/engine/utilities/allocator.hpp>
 #include <lit/engine/resources_manager.hpp>
 #include <lit/engine/components/voxel_grid/voxel_grid_sparse.hpp>
 #include <lit/rendering/opengl/api.hpp>
@@ -11,7 +11,7 @@
 #include <lit/rendering/opengl/uniform_buffer.hpp>
 #include <lit/engine/components/camera.hpp>
 #include "lit/engine/systems/system.hpp"
-#include "voxel_world_gpu_data_manager.hpp"
+#include "voxel_grid_gpu_data_manager.hpp"
 
 namespace lit::engine {
 

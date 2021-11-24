@@ -15,14 +15,16 @@ lit::viewer::ViewerWindow::ViewerWindow(Scene &scene)
 bool lit::viewer::ViewerWindow::Init() {
     m_observer = m_scene.CreteEntity("observer");
     m_observer.AddComponent<CameraComponent>(glm::uvec2(1280, 720));
-    m_observer.AddComponent<SkyBoxComponent>(ResourcesManager::GetAssetPath("sky_boxes/standard"));
+    //m_observer.AddComponent<SkyBoxComponent>(ResourcesManager::GetAssetPath("sky_boxes/standard"));
 
     m_scene.AddSystem<CameraPreRenderer>();
     m_scene.AddSystem<SkyBoxRenderer>();
-    m_scene.AddSystem<VoxelGridLodManager<uint32_t>>();
     m_scene.AddSystem<VoxelRenderer>();
     m_scene.AddSystem<ToneMappingRenderer>();
     m_scene.AddSystem<ObserverInputController>(m_observer.GetEntity());
+
+    auto lod_manager = m_scene.AddSystem<VoxelGridLodManager<uint32_t>>();
+    m_scene.AddSystem<VoxelWorldGpuDataManager>();
     return true;
 }
 

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <lit/common/glm_ext/comparators.hpp>
-#include <lit/engine/algorithms/allocator.hpp>
+#include <lit/engine/utilities/allocator.hpp>
+#include <lit/engine/utilities/array_view.hpp>
 #include <lit/engine/components/voxel_grid/voxel_grid_base.hpp>
 #include <glm/vec3.hpp>
 #include <variant>
@@ -58,8 +59,12 @@ namespace lit::engine {
         }
 
         VoxelGridSparseT(const glm::ivec3& dimensions, const glm::dvec3& anchor)
-            : VoxelGridBaseT<VoxelType>(((glm::clamp(dimensions, 1, 1 << 15) - 1) | (CHUNK_SIZE - 1) + 1),
-                anchor) {}
+            : VoxelGridBaseT<VoxelType>((((glm::clamp(dimensions, 1, 1 << 15) - 1) | (CHUNK_SIZE - 1)) + 1), anchor),
+            m_chunk_grid_data(glm::compMul(VoxelGridBaseT<VoxelType>::m_dimensions >> CHUNK_SIZE_LOG), CHUNK_EMPTY),
+            m_chunk_grid(VoxelGridBaseT<VoxelType>::m_dimensions >> CHUNK_SIZE_LOG, m_chunk_grid_data.data()) {
+            // Create fake zero chunk
+            CreateChunk({ 0, 0, 0 });
+        }
 
         void SetVoxel(const glm::ivec3& position, VoxelType value) override {
             glm::ivec3 chunk_grid_position = position >> CHUNK_SIZE_LOG;
@@ -67,7 +72,7 @@ namespace lit::engine {
                 return;
             }
 
-            ChunkIndexType chunk_index = m_chunk_grid.GetPixel(chunk_grid_position);
+            ChunkIndexType chunk_index = m_chunk_grid.At(chunk_grid_position);
             if (chunk_index == 0 && value == 0) {
                 // If chunk is empty and value is 0 we can skip.
                 return;
@@ -102,7 +107,7 @@ namespace lit::engine {
                 return 0;
             }
 
-            ChunkIndexType chunk_index = m_chunk_grid.GetPixel(chunk_grid_position);
+            ChunkIndexType chunk_index = m_chunk_grid.At(chunk_grid_position);
             if (chunk_index == 0) {
                 return 0;
             }
@@ -112,14 +117,14 @@ namespace lit::engine {
             return chunk[relative_position.x][relative_position.y][relative_position.z];
         };
 
-        void WriteGridDataTo(ChunkIndexType* destination) const {
-            memcpy(destination, m_chunk_grid.GetDataPointer(),
+        /*void WriteGridDataTo(ChunkIndexType* destination) const {
+            memcpy(destination, m_chunk_grid.Data(),
                 glm::compMul(GetChunkGridDimensions()) * sizeof(ChunkIndexType));
         }
 
         void WriteChunkDataTo(VoxelType* destination, ChunkIndexType index) {
             memcpy(destination, (void*)&m_chunks[index], sizeof(ChunkData));
-        }
+        }*/
 
         struct ChunkCreatedArgs {
             ChunkIndexType index;
@@ -147,6 +152,10 @@ namespace lit::engine {
         size_t AddOnChunkAnyChangeCallback(OnChunkAnyChangeCallback callback) {
             m_chunk_callbacks.emplace_back(std::move(callback));
             return m_chunk_callbacks.size() - 1;
+        }
+
+        glm::ivec3 GetChunkGridPos(ChunkIndexType index) {
+            return m_positions[index];
         }
 
         void RemoveOnChunkAnyChangeCallback(size_t index) {
@@ -196,17 +205,25 @@ namespace lit::engine {
         };
 
         void InvokeForAllChunks(std::function<void(const ChunkView&)> function) {
-
+            // todo: !!!!!!
         }
 
         size_t GetSizeBytes() const override {
             return VoxelGridBaseT<VoxelType>::GetSizeBytes() - sizeof(VoxelGridBaseT<VoxelType>) +
                 sizeof(VoxelGridSparseT<VoxelType>) +
                 m_chunk_callbacks.capacity() * sizeof(OnChunkAnyChangeCallback) +
-                m_chunk_index_allocator.GetSizeBytes() - sizeof(FixedAllocator) +
+                m_chunk_index_allocator.GetSizeBytes() - sizeof(ContiguousAllocator) +
                 m_chunks.size() * sizeof(ChunkData) +
                 m_positions.capacity() * sizeof(glm::ivec3) +
-                glm::compMul(m_chunk_grid.GetDimensions()) * sizeof(ChunkIndexType);
+                m_chunk_grid_data.capacity() * sizeof(ChunkIndexType);
+        }
+
+        const Array3DView<ChunkIndexType>& GetChunkGridView() const {
+            return m_chunk_grid;
+        }
+
+        const Array3DView<VoxelType> GetChunkViewAsArray(ChunkIndexType index) const {
+            return Array3DView<VoxelType>(GetChunkDimensions(), (VoxelType*)m_chunks[index].data());
         }
 
     private:
@@ -241,11 +258,12 @@ namespace lit::engine {
 
         std::vector<OnChunkAnyChangeCallback> m_chunk_callbacks;
 
-        FixedAllocator m_chunk_index_allocator = FixedAllocator(0);
+        ContiguousAllocator m_chunk_index_allocator = ContiguousAllocator(0);
 
         std::deque<ChunkData> m_chunks;
         std::vector<glm::ivec3> m_positions;
-        lit::common::Image3D<ChunkIndexType> m_chunk_grid;
+        std::vector<ChunkIndexType> m_chunk_grid_data;
+        Array3DView<ChunkIndexType> m_chunk_grid;
     };
 
 }

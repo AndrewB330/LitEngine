@@ -23,29 +23,29 @@ namespace lit::engine {
 
         Transform3t(tvec t, tquat r, double s) : translation(t), rotation(glm::normalize(r)), scale(s) {}
 
-        tvec Apply(const tvec &pos) const {
+        tvec Apply(const tvec& pos) const {
             return glm::rotate(rotation, pos * scale) + translation;
         }
 
-        tvec ApplyInv(const tvec &pos) const {
+        tvec ApplyInv(const tvec& pos) const {
             auto rotation_inv = tquat(-rotation.w, rotation.x, rotation.y, rotation.z);
             return glm::rotate(rotation_inv, pos - translation) / scale;
         }
 
         tmat4 Matrix() const {
             return glm::translate(translation) *
-                   glm::toMat4(rotation) *
-                   glm::scale(tvec(scale));
+                glm::toMat4(rotation) *
+                glm::scale(tvec(scale));
         }
 
         tmat4 MatrixInv() const {
             auto rotation_inv = tquat(-rotation.w, rotation.x, rotation.y, rotation.z);
             return glm::scale(tvec(1 / scale)) *
-                   glm::toMat4(rotation_inv) *
-                   glm::translate(-translation);
+                glm::toMat4(rotation_inv) *
+                glm::translate(-translation);
         }
 
-        bool operator==(const Transform3t<T> & other) {
+        bool operator==(const Transform3t<T>& other) {
             return translation == other.translation && rotation == other.rotation && scale == other.scale;
         }
     };

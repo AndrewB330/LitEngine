@@ -22,10 +22,10 @@
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\allocator.cpp">
+    <ClCompile Include="src\engine\utilities\allocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\fenwick_tree.cpp">
+    <ClCompile Include="src\engine\utilities\fenwick_tree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\debug_window.cpp">
@@ -93,16 +93,16 @@
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\tag.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\allocator.hpp">
+    <ClInclude Include="include\lit\engine\utilities\allocator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\fenwick_tree.hpp">
+    <ClInclude Include="include\lit\engine\utilities\fenwick_tree.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\debug_window.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_gpu_data_manager.hpp">
+    <ClInclude Include="include\lit\engine\systems\voxels\voxel_grid_gpu_data_manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_generator.hpp">
@@ -124,6 +124,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\lit\engine\systems\voxels\voxel_grid_lod_manager.hpp" />
+    <ClInclude Include="include\lit\engine\utilities\array_view.hpp" />
+    <ClInclude Include="include\lit\engine\components\transform.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\Dev\LitEngine\engine\CMakeLists.txt" />

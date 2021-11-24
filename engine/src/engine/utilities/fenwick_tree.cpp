@@ -1,4 +1,4 @@
-#include <lit/engine/algorithms/fenwick_tree.hpp>
+#include <lit/engine/utilities/fenwick_tree.hpp>
 
 using namespace lit::engine;
 

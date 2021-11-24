@@ -1,5 +1,5 @@
 #include <lit/engine/systems/voxels/voxel_world_generator.hpp>
-#include <lit/engine/algorithms/fast_noise_lite.hpp>
+#include <lit/engine/utilities/fast_noise_lite.hpp>
 #include <random>
 
 using namespace lit::engine;

@@ -294,10 +294,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\observer_input_controller.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\system.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\tag.hpp" />
-    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\allocator.hpp" />
-    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\algorithms\fenwick_tree.hpp" />
+    <ClInclude Include="include\lit\engine\components\transform.hpp" />
+    <ClInclude Include="include\lit\engine\utilities\allocator.hpp" />
+    <ClInclude Include="include\lit\engine\utilities\array_view.hpp" />
+    <ClInclude Include="include\lit\engine\utilities\fenwick_tree.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\viewer\debug_window.hpp" />
-    <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_gpu_data_manager.hpp" />
+    <ClInclude Include="include\lit\engine\systems\voxels\voxel_grid_gpu_data_manager.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\voxels\voxel_world_generator.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\components\sky_box.hpp" />
     <ClInclude Include="D:\Dev\LitEngine\engine\include\lit\engine\systems\renderers\sky_box_renderer.hpp" />
@@ -311,8 +313,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\player_controller.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_renderer.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\camera.cpp" />
-    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\allocator.cpp" />
-    <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\algorithms\fenwick_tree.cpp" />
+    <ClCompile Include="src\engine\utilities\allocator.cpp" />
+    <ClCompile Include="src\engine\utilities\fenwick_tree.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\viewer\debug_window.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\components\voxel_tree.cpp" />
     <ClCompile Include="D:\Dev\LitEngine\engine\src\engine\systems\voxels\voxel_world_gpu_data_manager.cpp" />

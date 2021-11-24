@@ -15,14 +15,14 @@ using namespace lit::viewer;
 
 
 void GLAPIENTRY
-MessageCallback(GLenum, GLenum type, GLuint, GLenum severity, GLsizei, const GLchar *message, const void *) {
+MessageCallback(GLenum, GLenum type, GLuint, GLenum severity, GLsizei, const GLchar* message, const void*) {
     static int prev_error_type = 0;
     if (type == 0x8251 || prev_error_type == type) {
         return;
     }
     prev_error_type = type;
     spdlog::default_logger()->error("GL CALLBACK: {} type = {}, severity = {}, message = {}",
-                                    (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
+        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type, severity, message);
 }
 
 void EnableGlDebug() {
@@ -31,15 +31,17 @@ void EnableGlDebug() {
     glDebugMessageCallback(MessageCallback, nullptr);
 }
 
-void InitScene(Scene & scene) {
-    auto &world = scene.CreteEntity("world").AddComponent<VoxelGridSparseT<uint32_t>>(glm::ivec3{512, 512, 512}, glm::dvec3{0.0, 0.0, 0.0});
-
+void InitScene(Scene& scene) {
+    auto& world = scene.CreteEntity("world").AddComponent<VoxelGridSparseT<uint32_t>>(glm::ivec3{ 32, 32, 32 }, glm::dvec3{ 16.0, 0.0, 16.0 });
+    world.SetVoxel({ 0,0,0 }, 1);
+    world.SetVoxel({ 1,1,1 }, 1);
+    world.SetVoxel({ 15,0,17 }, 1);
     Timer timer;
-    world = VoxelWorldGenerator::Generate();
+    //world = VoxelWorldGenerator::Generate();
 
 }
 
-void ViewerApp::StartApp(const spdlog::logger_ptr &logger) {
+void ViewerApp::StartApp(const spdlog::logger_ptr& logger) {
 
     //TestTree();
 
@@ -61,7 +63,7 @@ void ViewerApp::StartApp(const spdlog::logger_ptr &logger) {
 
     auto window = std::make_shared<ViewerWindow>(scene);
     auto debug = std::make_shared<DebugUI>();
-    app.CreateWindow(game_window, {window, debug}, {debug, window});
+    app.CreateWindow(game_window, { window, debug }, { debug, window });
     EnableGlDebug();
 
     Timer timer;

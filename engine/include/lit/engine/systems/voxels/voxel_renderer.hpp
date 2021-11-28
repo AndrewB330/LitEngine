@@ -54,7 +54,7 @@ namespace lit::engine {
 
         UniformBuffer m_global_world_info = UniformBuffer::Create({.size=sizeof(GlobalWorldInfo)});
 
-        VoxelWorldGpuDataManager m_voxel_world_gpu_data_manager;
+        //VoxelGridGpuDataManager m_voxel_grid_gpu_data_manager;
     };
 
 }

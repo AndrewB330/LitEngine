@@ -1,5 +1,4 @@
 #include <lit/engine/systems/voxels/voxel_world_generator.hpp>
-#include <lit/engine/utilities/fast_noise_lite.hpp>
 #include <random>
 
 using namespace lit::engine;
@@ -175,20 +174,20 @@ VoxelGridSparseT<uint32_t> VoxelWorldGenerator::Generate() {
     std::vector<std::vector<int>> height_sand(width, std::vector<int>(depth));
 
 
-    FastNoiseLite fn;
+    /*FastNoiseLite fn;
     fn.SetNoiseType(FastNoiseLite::NoiseType::NoiseType_Perlin);
-    fn.SetFractalType(FastNoiseLite::FractalType::FractalType_FBm);
+    fn.SetFractalType(FastNoiseLite::FractalType::FractalType_FBm);*/
 
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < depth; j++) {
             glm::vec2 pos{ i, j };
             float radius = glm::length(pos - center);
             float x = radius / (width * 0.5);
-            //float noise = SampleFractalNoise2D(pos, 2000.0f, 9) - SamplePerlinNoise2D(pos / 2000.0f) * 0.3f;
-            float noise = fn.GetNoise(pos.x, pos.y, 1 / 3000.0f, 9) - fn.GetNoise(pos.x, pos.y, 1 / 3000.0f, 1) * 0.3;
+            float noise = SampleFractalNoise2D(pos, 2000.0f, 9) - SamplePerlinNoise2D(pos / 2000.0f) * 0.3f;
+            //float noise = fn.GetNoise(pos.x, pos.y, 1 / 3000.0f, 9) - fn.GetNoise(pos.x, pos.y, 1 / 3000.0f, 1) * 0.3;
             height[i][j] = noise * 700 - x * x * 128;
-            height_sand[i][j] = height[i][j] * 0.7 + 8 + fn.GetNoise(pos.x, pos.y, 1 / 64.0f, 6) * 8;
-            height_grass[i][j] = height[i][j] + fn.GetNoise(pos.x, pos.y, 1 / 3.3f, 2) * 2 + 1;
+            height_sand[i][j] = height[i][j] * 0.7 + 8 + SampleFractalNoise2D(pos, 64.0f, 6) * 8;
+            height_grass[i][j] = height[i][j] + SampleFractalNoise2D(pos, 3.3f, 2) * 2 + 1;
         }
     }
 

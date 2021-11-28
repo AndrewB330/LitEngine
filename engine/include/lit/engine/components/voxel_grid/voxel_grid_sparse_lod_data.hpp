@@ -34,19 +34,19 @@ namespace lit::engine {
         }
 
         Array3DView<ChunkIndexType> GetChunkGridViewAtLod(int lod) {
-            return Array3DView(m_grid_lod_data.begin() + GetLodTotalSize(m_chunk_grid_dimensions, 0, lod - 1), m_chunk_grid_dimensions >> lod);
+            return Array3DView(m_chunk_grid_dimensions >> lod, m_grid_lod_data.data() + GetLodTotalSize(m_chunk_grid_dimensions, 0, lod - 1));
         }
 
         Array3DView<VoxelType> GetChunkViewAtLod(ChunkIndexType index, int lod) {
             size_t offset = (index * GetLodTotalSize(VoxelGrid::GetChunkDimensions(), 1, VoxelGrid::CHUNK_SIZE_LOG)) +
                 GetLodTotalSize(VoxelGrid::GetChunkDimensions(), 1, lod - 1);
-            return Array3DView(m_grid_lod_data.begin() + offset, VoxelGrid::GetChunkDimensions() >> lod);
+            return Array3DView(VoxelGrid::GetChunkDimensions() >> lod, m_grid_lod_data.data() + offset);
         }
 
         Array3DViewBool<uint32_t> GetBinaryChunkAtLod(ChunkIndexType index, int lod) {
             size_t offset = (index * GetLodTotalSize(VoxelGrid::GetChunkDimensions(), 0, VoxelGrid::CHUNK_SIZE_LOG)) +
                 GetLodTotalSize(VoxelGrid::GetChunkDimensions(), 0, lod - 1);
-            return Array3DViewBool(m_chunk_binary_lod_data.begin(), VoxelGrid::GetChunkDimensions() >> lod, offset);
+            return Array3DViewBool<uint32_t>(VoxelGrid::GetChunkDimensions() >> lod, m_chunk_binary_lod_data.data(), offset);
         }
 
         std::vector<ChunkIndexType> m_grid_lod_data;

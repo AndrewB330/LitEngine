@@ -198,6 +198,8 @@ namespace lit::engine {
             }
 
         private:
+            friend class VoxelGridSparseT<VoxelType>;
+
             ChunkView(ChunkIndexType index, VoxelGridSparseT<VoxelType>& owner) :m_index(index), m_owner(owner) {}
 
             ChunkIndexType m_index;
@@ -205,7 +207,16 @@ namespace lit::engine {
         };
 
         void InvokeForAllChunks(std::function<void(const ChunkView&)> function) {
-            // todo: !!!!!!
+            auto grid_dims = GetChunkGridDimensions();
+            for (int i = 0; i < grid_dims.x; i++) {
+                for (int j = 0; j < grid_dims.y; j++) {
+                    for (int k = 0; k < grid_dims.z; k++) {
+                        if (m_chunk_grid.At(i, j, k)) {
+                            function(ChunkView(m_chunk_grid.At(i, j, k), *this));
+                        }
+                    }
+                }
+            }
         }
 
         size_t GetSizeBytes() const override {
@@ -252,6 +263,7 @@ namespace lit::engine {
                 m_chunks.emplace_back();
                 m_positions.emplace_back(chunk_grid_position);
             }
+            m_chunk_grid.At(chunk_grid_position) = index;
             InvokeOnChunkAnyChangeCallbacks(ChunkCreatedArgs{ index, chunk_grid_position });
             return index;
         }

@@ -25,6 +25,7 @@ namespace lit::viewer {
 
         lit::engine::EntityView m_observer;
         lit::engine::Scene& m_scene;
+        lit::engine::VoxelGridGpuDataManager* m_data_manager;
     };
 
 }

@@ -1,5 +1,5 @@
 #include <glm/common.hpp>
-#include "lit/engine/components/voxel_grid.hpp"
+#include <lit/engine/components/voxel_grid/voxel_grid_dense.hpp>
 
 using namespace lit::engine;
 

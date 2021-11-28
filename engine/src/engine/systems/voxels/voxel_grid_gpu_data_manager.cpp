@@ -23,9 +23,11 @@ void VoxelGridGpuDataManager::RegisterNewEntities() {
         auto& grid = m_registry.get<VoxelGrid>(ent);
         auto& grid_lod = m_registry.get<VoxelGridLod>(ent);
 
-        if (!grid_lod.m_grid_lod_data.empty()) {
-            continue;
+        if (m_registered) {
+            return;
         }
+
+        m_registered = true;
 
         grid.InvokeForAllChunks([ent, this](const VoxelGrid::ChunkView& v) {
             m_changes[ent].push_back(typename VoxelGrid::ChunkCreatedArgs{ v.GetIndex(), v.GetChunkGridPosition() });
@@ -139,6 +141,8 @@ void lit::engine::VoxelGridGpuDataManager::ProcessAllChangesForEntity(entt::enti
 }
 
 void VoxelGridGpuDataManager::CommitChanges(glm::dvec3 observer_position) {
+    m_lod_manager.CommitChanges();
+
     RegisterNewEntities();
 
     for (auto& [ent, changes] : m_changes) {
@@ -150,6 +154,9 @@ void VoxelGridGpuDataManager::CommitChanges(glm::dvec3 observer_position) {
     }
 
     m_changes.clear();
+
+    // TODO: REMOVE
+    return;
 
     // Sort chunks
     if (m_sorted_chunk_indices.empty())

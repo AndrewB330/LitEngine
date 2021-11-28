@@ -40,10 +40,10 @@ void VoxelRenderer::UpdateConstantUniforms() {
 
     m_global_world_info.Bind(2);
 
-    m_voxel_world_gpu_data_manager.GetWorldDataBuffer().Bind(16);
+    /*m_voxel_world_gpu_data_manager.GetWorldDataBuffer().Bind(16);
     m_voxel_world_gpu_data_manager.GetChunkDataBuffer().Bind(17);
     m_voxel_world_gpu_data_manager.GetChunkCompressedDataBuffer().Bind(18);
-    m_voxel_world_gpu_data_manager.GetChunkInfoBuffer().Bind(19);
+    m_voxel_world_gpu_data_manager.GetChunkInfoBuffer().Bind(19);*/
 }
 
 void VoxelRenderer::UpdateShader() {

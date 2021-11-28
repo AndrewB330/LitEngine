@@ -73,7 +73,7 @@ namespace lit::engine {
             }
         }
 
-        void ProcessAllChangesForEntity(entt::entity& ent, const std::vector<ChunkAnyChangeArgs>& changes) {
+        void ProcessAllChangesForEntity(entt::entity ent, const std::vector<ChunkAnyChangeArgs>& changes) {
             auto& grid_lod = m_registry.get<VoxelGridLod>(ent);
             auto& grid = m_registry.get<VoxelGrid>(ent);
 
@@ -110,7 +110,7 @@ namespace lit::engine {
 
             typename VoxelGrid::ChunkIndexType max_index = 0;
 
-            for (auto& change : m_changes) {
+            for (auto& change : changes) {
                 if (std::holds_alternative<ChunkCreatedArgs>(change)) {
                     auto index = std::get<ChunkCreatedArgs>(change).index;
                     chunks_to_update.insert(index);
@@ -121,7 +121,7 @@ namespace lit::engine {
                 }
                 else if (std::holds_alternative<ChunkDeletedArgs>(change)) {
                     auto it = chunks_to_update.find(std::get<ChunkDeletedArgs>(change).index);
-                    if (it != chunks_to_update.size()) {
+                    if (it != chunks_to_update.end()) {
                         chunks_to_update.erase(it);
                     }
                 }
@@ -154,7 +154,7 @@ namespace lit::engine {
                 for (int i = 0; i < VoxelGrid::CHUNK_SIZE; i++) {
                     for (int j = 0; j < VoxelGrid::CHUNK_SIZE; j++) {
                         for (int k = 0; k < VoxelGrid::CHUNK_SIZE; k++) {
-                            view0.Set(i, j, k, viewraw.Get(i, j, k) > 0);
+                            view0.Set(i, j, k, viewraw.At(i, j, k) > 0);
                         }
                     }
                 }

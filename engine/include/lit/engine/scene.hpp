@@ -22,7 +22,13 @@ namespace lit::engine {
 
         template<typename T, typename...Args>
         T& AddSystem(Args &&...args) {
-            m_systems.emplace_back(std::make_unique<T>(m_registry, std::forward<Args>(args)...));
+            m_systems.emplace_back(new T(m_registry, std::forward<Args>(args)...));
+            return dynamic_cast<T&>(*m_systems.back());
+        }
+
+        template<typename T>
+        T& AddSystem() {
+            m_systems.emplace_back(new T(m_registry));
             return dynamic_cast<T&>(*m_systems.back());
         }
 

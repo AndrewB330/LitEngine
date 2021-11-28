@@ -23,8 +23,11 @@ bool lit::viewer::ViewerWindow::Init() {
     m_scene.AddSystem<ToneMappingRenderer>();
     m_scene.AddSystem<ObserverInputController>(m_observer.GetEntity());
 
-    auto lod_manager = m_scene.AddSystem<VoxelGridLodManager<uint32_t>>();
-    m_scene.AddSystem<VoxelWorldGpuDataManager>();
+    auto& lod_manager = m_scene.AddSystem<VoxelGridLodManager<uint32_t>>();
+
+
+
+    m_data_manager = &m_scene.AddSystem<VoxelGridGpuDataManager>(lod_manager);
     return true;
 }
 
@@ -32,6 +35,7 @@ void ViewerWindow::Redraw() {
     int width, height;
     SDL_GetWindowSize(m_sdl_window, &width, &height);
 
+    m_data_manager->CommitChanges(m_observer.GetComponent<TransformComponent>().translation);
     m_scene.OnRedraw(glm::uvec2(width, height), 0.0);
 
     m_observer.GetComponent<CameraComponent>().GetFrameBuffer().BlitToDefault();

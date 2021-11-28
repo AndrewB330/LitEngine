@@ -32,7 +32,9 @@ void EnableGlDebug() {
 }
 
 void InitScene(Scene& scene) {
-    auto& world = scene.CreteEntity("world").AddComponent<VoxelGridSparseT<uint32_t>>(glm::ivec3{ 32, 32, 32 }, glm::dvec3{ 16.0, 0.0, 16.0 });
+    auto ent = scene.CreteEntity("world");
+    auto& world = ent.AddComponent<VoxelGridSparseT<uint32_t>>(glm::ivec3{ 32, 32, 32 }, glm::dvec3{ 16.0, 0.0, 16.0 });
+    ent.AddComponent<VoxelGridSparseLodDataT<uint32_t>>();
     world.SetVoxel({ 0,0,0 }, 1);
     world.SetVoxel({ 1,1,1 }, 1);
     world.SetVoxel({ 15,0,17 }, 1);
@@ -63,7 +65,7 @@ void ViewerApp::StartApp(const spdlog::logger_ptr& logger) {
 
     auto window = std::make_shared<ViewerWindow>(scene);
     auto debug = std::make_shared<DebugUI>();
-    app.CreateWindow(game_window, { window, debug }, { debug, window });
+    app.CreateWindow(game_window, { window/*, debug*/}, {/*debug,*/ window});
     EnableGlDebug();
 
     Timer timer;

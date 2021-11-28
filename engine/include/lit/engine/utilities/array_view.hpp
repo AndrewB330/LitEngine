@@ -68,6 +68,9 @@ namespace lit::engine {
         Array3DViewBool(size_t width, size_t height, size_t depth, UnderlyingDataType* begin, size_t bit_offset)
             :m_width(width), m_height(height), m_depth(depth), m_begin(begin), m_bit_offset(bit_offset) {}
 
+        Array3DViewBool(glm::ivec3 dims, UnderlyingDataType* begin, size_t bit_offset)
+            :Array3DViewBool(dims.x, dims.y, dims.z, begin, bit_offset) {}
+
         bool Get(size_t i, size_t j, size_t k) {
             size_t bit_offset = GetTotalBitOffset(i, j, k);
             return ((*(m_begin + (bit_offset / BIT_SIZE))) >> (bit_offset & (BIT_SIZE - 1))) & 1;
@@ -83,11 +86,21 @@ namespace lit::engine {
             }
         }
 
+        void Fill(bool value) {
+            for (int i = 0; i < m_width; i++) {
+                for (int j = 0; j < m_width; j++) {
+                    for (int k = 0; k < m_width; k++) {
+                        Set(i, j, k, value);
+                    }
+                }
+            }
+        }
+
     private:
 
         static constexpr size_t BIT_SIZE = sizeof(UnderlyingDataType) * 8;
 
-        size_t GetTotalBitOffset(size_t i, size_t j, size_t k) {
+        size_t GetTotalBitOffset(size_t i, size_t j, size_t k) const {
             return m_bit_offset + i * m_height * m_depth + j * m_depth + k;
         }
 

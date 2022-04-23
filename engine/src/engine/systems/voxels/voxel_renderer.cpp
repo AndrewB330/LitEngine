@@ -10,21 +10,8 @@
 
 using namespace lit::engine;
 
-VoxelRenderer::VoxelRenderer(entt::registry & registry) : System(registry) {
+VoxelRenderer::VoxelRenderer(entt::registry & registry, VoxelGridGpuDataManager& manager) : System(registry), m_voxel_grid_gpu_data_manager(manager) {
     UpdateConstantUniforms();
-
-    /*auto& world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
-    world_info.world_size = VoxelGridSparseT<uint32_t>::GetDimensions();
-    world_info.chunk_size = VoxelGridSparseT<uint32_t>::GetChunkDimensions();
-    world_info.world_size_log = glm::log2(VoxelGridSparseT<uint32_t>::GetDims());
-    world_info.chunk_size_log = glm::log2(VoxelGridSparseT<uint32_t>::GetChunkDims());
-    world_info.world_max_lod = VoxelGridSparseT<uint32_t>::WORLD_SIZE_LOG;
-    world_info.chunk_max_lod = VoxelGridSparseT<uint32_t>::CHUNK_SIZE_LOG;
-    int offset = 0;
-    for (int i = 0; i < 10; i++) {
-        world_info.grid_lod_offset[i] = offset;
-        offset += glm::compMul(VoxelGridSparseT<uint32_t>::GetChunkGridDims() >> i);
-    }*/
 }
 
 std::optional<std::tuple<CameraComponent&, TransformComponent&>>
@@ -35,15 +22,23 @@ VoxelRenderer::GetCamera(entt::registry &registry) const {
     return std::nullopt;
 }
 
+std::optional<std::tuple<VoxelGridSparseT<uint32_t>&, TransformComponent&>>
+VoxelRenderer::GetWorld(entt::registry &registry) const {
+    for (auto c: registry.view<VoxelGridSparseT<uint32_t>>()) {
+        return std::tuple{std::ref(registry.get<VoxelGridSparseT<uint32_t>>(c)), std::ref(registry.get<TransformComponent>(c))};
+    }
+    return std::nullopt;
+}
+
 void VoxelRenderer::UpdateConstantUniforms() {
     m_shader.Bind();
 
     m_global_world_info.Bind(2);
 
-    /*m_voxel_world_gpu_data_manager.GetWorldDataBuffer().Bind(16);
-    m_voxel_world_gpu_data_manager.GetChunkDataBuffer().Bind(17);
-    m_voxel_world_gpu_data_manager.GetChunkCompressedDataBuffer().Bind(18);
-    m_voxel_world_gpu_data_manager.GetChunkInfoBuffer().Bind(19);*/
+    m_voxel_grid_gpu_data_manager.GetChunkGridDataBuffer().Bind(16);
+    m_voxel_grid_gpu_data_manager.GetChunkDataBuffer().Bind(17);
+    m_voxel_grid_gpu_data_manager.GetChunkCompressedDataBuffer().Bind(18);
+    m_voxel_grid_gpu_data_manager.GetChunkInfoBuffer().Bind(19);
 }
 
 void VoxelRenderer::UpdateShader() {
@@ -88,17 +83,32 @@ void VoxelRenderer::Redraw(double dt) {
 }
 
 void VoxelRenderer::Update(double dt) {
-    auto &world = m_registry.get<VoxelGridSparseT<uint32_t>>(m_registry.view<VoxelGridSparseT<uint32_t>>()[0]);
-    auto res = GetCamera(m_registry);
+    auto camera_opt = GetCamera(m_registry);
+    auto world_opt = GetWorld(m_registry);
 
     /*VoxelGridLodManager<uint32_t> mgr;
     mgr.CommitChanges(m_registry);*/
 
-    if (!res) {
+    if (!world_opt || !camera_opt) {
         return;
     }
 
-    auto & [_, transform] = *res;
+    auto & [world, _] = *world_opt;
+
+    auto& world_info = *m_global_world_info.GetHostPtrAs<GlobalWorldInfo>();
+    world_info.world_size = world.GetDimensions();
+    world_info.chunk_size = VoxelGridSparseT<uint32_t>::GetChunkDimensions();
+    world_info.world_size_log = glm::log2(world.GetDimensions());
+    world_info.chunk_size_log = glm::log2(VoxelGridSparseT<uint32_t>::GetChunkDimensions());
+    world_info.world_max_lod = glm::compMax(world_info.world_size_log);
+    world_info.chunk_max_lod = VoxelGridSparseT<uint32_t>::CHUNK_SIZE_LOG;
+    int offset = 0;
+    for (int i = 0; i < 10; i++) {
+        world_info.grid_lod_offset[i] = offset;
+        offset += glm::compMul(world.GetChunkGridDimensions() >> i);
+    }
+
+    auto & [_ignore, camera_transform] = *camera_opt;
 
     //m_voxel_world_gpu_data_manager.Update(world, transform.translation * 16. + glm::dvec3(VoxelGridSparseT<uint32_t>::GetDims()) / 2.);
 }

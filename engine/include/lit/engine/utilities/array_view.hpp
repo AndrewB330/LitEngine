@@ -11,13 +11,19 @@ namespace lit::engine {
     template<typename T>
     class Array3DView {
     public:
-        Array3DView(size_t width, size_t height, size_t depth, T* begin)
-            :m_width(width), m_height(height), m_depth(depth), m_begin(begin) {}
+        Array3DView(size_t width, size_t height, size_t depth, T* begin, T* end)
+            :m_width(width), m_height(height), m_depth(depth), m_begin(begin), m_end(end) {
+            if (m_begin + m_width * m_height * m_depth > m_end) {
+                int x = 1;
+            }
+            assert(m_begin + m_width * m_height * m_depth <= m_end);
+        }
 
-        Array3DView(glm::ivec3 dims, T* begin)
-            :Array3DView(dims.x, dims.y, dims.z, begin) {}
+        Array3DView(glm::ivec3 dims, T* begin, T* end)
+            :Array3DView(dims.x, dims.y, dims.z, begin, end) {}
 
         T& At(size_t i, size_t j, size_t k) {
+            assert(m_begin + (i * m_height * m_depth + j * m_depth + k) < m_end);
             return *(m_begin + (i * m_height * m_depth + j * m_depth + k));
         }
 
@@ -26,6 +32,7 @@ namespace lit::engine {
         }
 
         const T& At(size_t i, size_t j, size_t k) const {
+            assert(m_begin + (i * m_height * m_depth + j * m_depth + k) < m_end);
             return *(m_begin + (i * m_height * m_depth + j * m_depth + k));
         }
 
@@ -33,9 +40,8 @@ namespace lit::engine {
             return At(pos.x, pos.y, pos.z);
         }
 
-        void CopyTo(Array3DView<T>& other) const {
+        void CopyTo(Array3DView<T>&& other) const {
             memcpy(other.m_begin, m_begin, m_width * m_height * m_depth * sizeof(T));
-            return *this;
         }
 
         void Fill(T value) {
@@ -51,11 +57,16 @@ namespace lit::engine {
             return m_begin;
         }
 
+        glm::ivec3 GetDimensions() {
+            return {m_width, m_height, m_depth};
+        }
+
     private:
         size_t m_width;
         size_t m_height;
         size_t m_depth;
         T* m_begin;
+        T* m_end;
     };
 
     /// <summary>
@@ -65,19 +76,21 @@ namespace lit::engine {
     template<typename UnderlyingDataType>
     class Array3DViewBool {
     public:
-        Array3DViewBool(size_t width, size_t height, size_t depth, UnderlyingDataType* begin, size_t bit_offset)
-            :m_width(width), m_height(height), m_depth(depth), m_begin(begin), m_bit_offset(bit_offset) {}
+        Array3DViewBool(size_t width, size_t height, size_t depth, UnderlyingDataType* begin, UnderlyingDataType * end, size_t bit_offset)
+            :m_width(width), m_height(height), m_depth(depth), m_begin(begin), m_bit_offset(bit_offset), m_end(end) {}
 
-        Array3DViewBool(glm::ivec3 dims, UnderlyingDataType* begin, size_t bit_offset)
-            :Array3DViewBool(dims.x, dims.y, dims.z, begin, bit_offset) {}
+        Array3DViewBool(glm::ivec3 dims, UnderlyingDataType* begin, UnderlyingDataType* end, size_t bit_offset)
+            :Array3DViewBool(dims.x, dims.y, dims.z, begin, end, bit_offset) {}
 
         bool Get(size_t i, size_t j, size_t k) {
             size_t bit_offset = GetTotalBitOffset(i, j, k);
+            assert(m_begin + (bit_offset / BIT_SIZE) < m_end);
             return ((*(m_begin + (bit_offset / BIT_SIZE))) >> (bit_offset & (BIT_SIZE - 1))) & 1;
         }
 
         void Set(size_t i, size_t j, size_t k, bool value) const {
             size_t bit_offset = GetTotalBitOffset(i, j, k);
+            assert(m_begin + (bit_offset / BIT_SIZE) < m_end);
             if (value) {
                 *(m_begin + (bit_offset / BIT_SIZE)) |= (1ull << (bit_offset & (BIT_SIZE - 1)));
             }
@@ -109,6 +122,7 @@ namespace lit::engine {
         size_t m_depth;
         size_t m_bit_offset;
         UnderlyingDataType* m_begin;
+        UnderlyingDataType* m_end;
     };
 
 }

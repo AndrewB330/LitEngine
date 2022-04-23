@@ -1,98 +1,51 @@
 #pragma once
 
-#include <lit/common/glm_ext/region.hpp>
-#include <lit/common/images/images.hpp>
+#include <lit/engine/components/voxel_grid/voxel_grid_base.hpp>
+#include <lit/engine/utilities/array_view.hpp>
+#include <glm/gtx/component_wise.hpp>
+#include "glm/vector_relational.hpp"
 
 namespace lit::engine {
 
-    using lit::common::glm_ext::iregion3;
-
-    /**
-     * Describes region of voxels that was changed.
-     * @num_changes - number of voxels that were changed
-     * @affected_region - bounding box of region of where changes were made.
-     * @affected_lod_regions - list of regions for different lod levels.
-     */
-    struct VoxelGridChanges {
-        int num_changes = 0;
-        iregion3 affected_region = iregion3::empty();
-        std::vector<iregion3> affected_lod_regions = {}; // affected regions for each lod level
-    };
-
-    class VoxelGrid {
+    template<typename VoxelType>
+    class VoxelGridDenseT : public VoxelGridBaseT<uint32_t> {
     public:
-        static const int kMaxLodNum = 10;
-        static const int kHighestLodSizeThreshold = 4;
-        static const int kMinSize = 1;
-        static const int kMaxSize = 1024;
+        VoxelGridDenseT(const glm::ivec3 &dimensions, const glm::dvec3 &anchor)
+                : VoxelGridBaseT<VoxelType>(dimensions, anchor),
+                  m_data(glm::compMul(VoxelGridBaseT<VoxelType>::m_dimensions), 0),
+                  m_view(VoxelGridBaseT<VoxelType>::m_dimensions, &m_data[0], &m_data[0] + m_data.size()) {
+        }
 
-        /**
-         * Create empty grid (all values are zero) with a given dimensions.
-         * Use @binary=true if you want to store only 1 bit per voxel.
-         * By default you can store uint8_t value per voxel.
-         */
-        explicit VoxelGrid(glm::ivec3 dims = glm::ivec3(1), bool binary = false);
+        ~VoxelGridDenseT() override = default;
 
-        /**
-         * Create empty grid (all values are zero) with a given dimensions and anchor.
-         * Use @binary=true if you want to store only 1 bit per voxel.
-         * By default you can store uint8_t value per voxel.
-         */
-        VoxelGrid(glm::ivec3 dims, glm::dvec3 anchor, bool binary = false);
+        void SetVoxel(const glm::ivec3 &pos, VoxelType value) override {
+            if (glm::any(glm::lessThan(pos, glm::ivec3(0))) || glm::any(glm::greaterThanEqual(pos, m_dimensions))) {
+                return;
+            }
 
-        /**
-         * Set value of @pos voxel to @value after next ApplyGridChanges is called.
-         * If several calls were made then only last @value will be considered.
-         */
-        void SetVoxelDeferred(glm::ivec3 pos, uint8_t value);
+            m_view.At(pos) = value;
+        };
 
-        /**
-         * Set value of (@x, @y, @z) voxel to @value after next ApplyGridChanges is called.
-         * If several calls were made then only last @value will be considered.
-         */
-        void SetVoxelDeferred(int x, int y, int z, uint8_t value);
+        VoxelType GetVoxel(const glm::ivec3 &pos) const override {
+            if (glm::any(glm::lessThan(pos, glm::ivec3(0))) || glm::any(glm::greaterThanEqual(pos, m_dimensions))) {
+                return 0;
+            }
 
-        /**
-         * Apply all deferred grid changes (SetVoxelDeferred) and return changes summary.
-         * Todo: Return many aggregated regions instead of only one bounding box.
-         * Todo: For example if we changed only two opposite corner voxels
-         * Todo: we should not report entire grid update, only two corners.
-         */
-        VoxelGridChanges ApplyGridChanges();
+            return m_view.At(pos);
+        }
 
-        uint8_t GetVoxel(glm::ivec3 pos) const;
-
-        uint8_t GetVoxel(int x, int y, int z) const;
-
-        glm::ivec3 GetDims() const;
-
-        glm::ivec3 GetDimsLod(int lod) const;
-
-        bool IsBinary() const;
-
-        int GetHighestLod() const;
-
-        glm::dvec3 GetAnchor() const;
-
-        friend class VoxelRenderer;
+        size_t GetSizeBytes() const override {
+            return VoxelGridBaseT<VoxelType>::GetSizeBytes()
+                   - sizeof(VoxelGridBaseT<VoxelType>)
+                   + sizeof(VoxelGridDenseT<VoxelType>)
+                   + m_data.capacity() * sizeof(VoxelType)
+                   + sizeof(std::vector<VoxelType>)
+                   + sizeof(Array3DView<VoxelType>);
+        }
 
     private:
-        int GetLodDataBit(glm::ivec3 pos) const;
-
-        bool HasVoxel(glm::ivec3 pos, int lod) const;
-
-        void SetHasVoxel(glm::ivec3 pos, int lod, bool value);
-
-        lit::common::Image3D<uint8_t> m_data;
-        lit::common::Image3D<uint8_t> m_lod_data[kMaxLodNum]; // bit-compressed
-
-        glm::ivec3 m_dims = {1, 1, 1};
-
-        bool m_binary = false;
-
-        glm::dvec3 m_anchor;
-
-        std::vector<std::pair<glm::ivec3, uint8_t>> m_deferred_set_voxel;
+        std::vector<VoxelType> m_data;
+        Array3DView<VoxelType> m_view;
     };
 
 }

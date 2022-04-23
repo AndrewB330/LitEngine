@@ -62,13 +62,11 @@ bool _HasChunk(ivec3 cell, int lod) {
     return val != 0 && val != 0xFFFFFFFF;
 }
 
-
-
 uint _GetVoxel(uint chunk, uint bucket, uint chunk_offset, ivec3 cell, int lod) {
     cell = (cell & ((1 << CHUNK_MAX_LOD) - 1)) >> lod;
     return buf_chunk_data[
     chunk_offset
-    + (0x249249u & ((0x7FFFFFF8u << (3*(CHUNK_MAX_LOD - lod)))) & ~((0x7FFFFFF8u) << ((CHUNK_MAX_LOD-bucket)*3)))
+    //+ (0x249249u & ((0x7FFFFFF8u << (3*(CHUNK_MAX_LOD - lod)))) & ~((0x7FFFFFF8u) << ((CHUNK_MAX_LOD-bucket)*3)))
     + cell.z + (cell.y << (CHUNK_MAX_LOD - lod)) + (cell.x << ((CHUNK_MAX_LOD - lod) << 1))
     ];
 }
@@ -80,6 +78,13 @@ bool _HasVoxel(uint chunk, ivec3 cell, int lod) {
     uint offset = DSIZE * chunk;
     int bit_index = int(0x9249u & ((0x7FFFFFF8u << (3*(CHUNK_MAX_LOD - lod)))))
     + cell.z + (cell.y << (CHUNK_MAX_LOD - lod)) + (cell.x << ((CHUNK_MAX_LOD - lod) << 1));
+    /*if (buf_chunk_compressed_data[offset + (bit_index >> 5)] == ~0) {
+        return true;
+    }
+    if (offset + (bit_index >> 5) >= 1171 && offset + (bit_index >> 5) <= 10534+6) {
+        return true;
+    }
+    return false;*/
     return ((buf_chunk_compressed_data[offset + (bit_index >> 5)] >> (bit_index & 31)) & 1) > 0;
 }
 
@@ -187,6 +192,10 @@ float WorldConeCast(vec3 origin, vec3 dir, float distance, float slope) {
     return dist_prev;
 }
 
+vec3 rstep(vec3 a, vec3 b) {
+    return step(-b, -a);
+}
+
 RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
     // Transform to local world coordinates!
     origin = origin * VOXEL_SIZE_INV + WORLD_SIZE * 0.5f;
@@ -198,14 +207,15 @@ RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
     ivec3 axes_inversed = (1 - signs) >> 1;
 
     origin = _ApplyInverse(origin, WORLD_SIZE, axes_inversed);
-    dir = normalize(abs(dir) + 1e-4f);
+    dir = normalize(abs(dir) + 1e-6f);
 
     vec3 ray_direction_inversed = 1.0f / dir; // to speed up division
     vec3 time = vec3(0); // time when we can hit a plane (Y-0-Z, X-0-Z, Y-0-X planes)
     vec3 shifted_ray_origin = origin; // ray origin is shifted each step to reduce floating point errors
     ivec3 cell = ivec3(floor(origin));
 
-    int lod = WORLD_MAX_LOD;
+    // TODO: remove -2
+    int lod = 6;
     bool hit = false;
 
     int iteration = 0;
@@ -236,27 +246,56 @@ RayCastResult WorldRayCast(vec3 origin, vec3 dir, int max_iterations) {
             }
             if (lod == max(chunk_info.bucket, min_bucket) && (res.voxel_data = _GetVoxel(chunk_index, chunk_info.bucket, chunk_info.global_address, cell_real, lod)) != 0) {
                 hit = true;
+                /*if (chunk_info.bucket == 0) {
+                    res.voxel_data = 0x80FF80;
+                }
+                if (chunk_info.bucket == 1) {
+                    res.voxel_data = 0xF0FF80;
+                }
+                if (chunk_info.bucket == 2) {
+                    res.voxel_data = 0xF09080;
+                }*/
                 break;
             }
         }
 
         time = ((cell | ((1 << lod) - 1)) + 1 - shifted_ray_origin) * ray_direction_inversed;
-        shifted_ray_origin += ((min(time.x, min(time.y, time.z))) + 1e-4f) * dir;
+        shifted_ray_origin += ((min(time.x, min(time.y, time.z))) + 1e-5f) * dir;
 
         cell = ivec3(floor(shifted_ray_origin));
 
         ivec3 bit = findLSB(cell);
-        lod = min(max(bit.x, max(bit.y, bit.z)), WORLD_MAX_LOD);
+        lod = min(max(bit.x, max(bit.y, bit.z)), 6);
     }
     res.cell = _ApplyInverse(cell, WORLD_SIZE, axes_inversed);
     res.position = (_ApplyInverse(shifted_ray_origin, WORLD_SIZE, axes_inversed) - WORLD_SIZE / 2) * VOXEL_SIZE;
     res.hit = hit;
     res.depth = dot(shifted_ray_origin - origin, dir) * VOXEL_SIZE;
-    res.normal = (iteration > 0 ?
-        ivec3(step(time.xyz, time.yzx) * step(time.xyz, time.zxy)) :
-        ivec3(step(origin.xyz, origin.yzx) * step(origin.xyz, origin.zxy)))
-        * (2 * axes_inversed - 1);
-    res.iterations = iteration;
 
+    //Normal compute
+    res.normal = ivec3(step(origin.xyz, origin.yzx) * step(origin.xyz, origin.zxy));
+
+    if (iteration > 0) {
+        res.normal = ivec3(rstep(time.xyz, time.yzx) * rstep(time.xyz, time.zxy));
+
+        // To remove on-edge artefacts
+        ivec3 next = cell - res.normal;
+        ivec3 next_real = _ApplyInverse(next, WORLD_SIZE, axes_inversed);
+        if (!any(lessThan(next_real, ivec3(0))) && all(lessThan(next_real, WORLD_SIZE))) {
+            if (_HasVoxel(_GetChunk(next_real, CHUNK_MAX_LOD), next_real, 0)) {
+                //res.voxel_data = 0x0000FF;
+                vec3 second_normal = rstep(time.yzx, time.xyz) * rstep(time.xyz, time.zxy) + rstep(time.zxy, time.xyz) * rstep(time.xyz, time.yzx);
+                float tmin = dot(res.normal, time);
+                float tnext = dot(second_normal, time);
+                if (tnext - tmin < 1e-3 && tmin < tnext) {
+                    res.normal = ivec3(second_normal);
+                }
+            }
+        }
+    }
+
+    res.normal *= (2 * axes_inversed - 1);
+
+    res.iterations = iteration;
     return res;
 }

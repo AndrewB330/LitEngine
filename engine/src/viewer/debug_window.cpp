@@ -82,6 +82,10 @@ void DebugUI::Redraw() {
         dbg.recompile_shaders = true;
     }
 
+    if (ImGui::Button("Regenerate Tree")) {
+        dbg.regenerate_tree = true;
+    }
+
     /*
 
     if (ImGui::CollapsingHeader("Buffers", ImGuiTreeNodeFlags_DefaultOpen)) {

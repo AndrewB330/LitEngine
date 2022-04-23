@@ -19,7 +19,7 @@ namespace lit::engine {
 
     class VoxelRenderer : public RenderingSystem, public BasicSystem {
     public:
-        VoxelRenderer(entt::registry & registry);
+        VoxelRenderer(entt::registry & registry, VoxelGridGpuDataManager& manager);
 
         ~VoxelRenderer() override = default;
 
@@ -44,6 +44,8 @@ namespace lit::engine {
 
         std::optional<std::tuple<CameraComponent&, TransformComponent&>> GetCamera(entt::registry &registry) const;
 
+        std::optional<std::tuple<VoxelGridSparseT<uint32_t>&, TransformComponent&>> GetWorld(entt::registry &registry) const;
+
         void UpdateShader();
 
         void UpdateConstantUniforms();
@@ -54,7 +56,7 @@ namespace lit::engine {
 
         UniformBuffer m_global_world_info = UniformBuffer::Create({.size=sizeof(GlobalWorldInfo)});
 
-        //VoxelGridGpuDataManager m_voxel_grid_gpu_data_manager;
+        VoxelGridGpuDataManager& m_voxel_grid_gpu_data_manager;
     };
 
 }

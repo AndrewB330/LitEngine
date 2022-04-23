@@ -89,16 +89,14 @@ namespace lit::engine {
                 if (grid_lod.m_grid_lod_data.empty()) {
                     grid_lod.SetDimensions(grid.GetChunkGridDimensions());
                 }
-                grid_lod.GetChunkGridViewAtLod(0) = grid.GetChunkGridView();
-                glm::ivec3 dims_cur = grid.GetChunkGridDimensions();
-                glm::ivec3 dims_next = (dims_cur + 1) >> 1;
+                grid.GetChunkGridView().CopyTo(grid_lod.GetChunkGridViewAtLod(0));
                 for (int lod = 1; lod <= grid_lod.m_max_grid_lod; lod++) {
                     Array3DView view_cur = grid_lod.GetChunkGridViewAtLod(lod - 1);
                     Array3DView view_next = grid_lod.GetChunkGridViewAtLod(lod);
                     view_next.Fill(0);
-                    for (int i = 0; i < dims_cur.x; i++) {
-                        for (int j = 0; j < dims_cur.y; j++) {
-                            for (int k = 0; k < dims_cur.z; k++) {
+                    for (int i = 0; i < view_cur.GetDimensions().x; i++) {
+                        for (int j = 0; j < view_cur.GetDimensions().y; j++) {
+                            for (int k = 0; k < view_cur.GetDimensions().z; k++) {
                                 view_next.At(i >> 1, j >> 1, k >> 1) |= view_cur.At(i, j, k);
                             }
                         }
@@ -131,19 +129,31 @@ namespace lit::engine {
             size_t target_size = (max_index + 1) * GetLodTotalSize(VoxelGrid::GetChunkDimensions(), 1, VoxelGrid::CHUNK_SIZE_LOG);
             ExpandVectorToSize(grid_lod.m_chunk_lod_data, target_size);
 
-            size_t target_bit_size = (max_index + 1) * GetLodTotalSize(VoxelGrid::GetChunkDimensions(), 0, VoxelGrid::CHUNK_SIZE_LOG);
-            ExpandVectorToSize(grid_lod.m_chunk_binary_lod_data, (target_bit_size + 31) / 32);
+            size_t target_size_compressed = (max_index + 1) * (GetLodTotalSize(VoxelGrid::GetChunkDimensions(), 0, VoxelGrid::CHUNK_SIZE_LOG) + 31) / 32;
+            ExpandVectorToSize(grid_lod.m_chunk_binary_lod_data, target_size_compressed);
+
+
+            // Combine data as colors todo: generalize
+            auto combine = [](uint32_t x, uint32_t y) {
+                if (!x || !y) return x | y;
+                uint32_t r = (((x & 0xFF0000u) >> 16) + ((y & 0xFF0000u) >> 16)) / 2;
+                uint32_t g = (((x & 0x00FF00u) >> 8) + ((y & 0x00FF00u) >> 8)) / 2;
+                uint32_t b = (((x & 0x0000FFu) >> 0) + ((y & 0x0000FFu) >> 0)) / 2;
+                return (r << 16) | (g << 8) | b;
+            };
 
             for (auto& index : chunks_to_update) {
                 // update regular chunk lods
                 for (int lod = 1; lod <= VoxelGrid::CHUNK_SIZE_LOG; lod++) {
-                    const Array3DView view_cur = (lod == 1 ? grid_lod.GetChunkViewAtLod(index, lod - 1) : grid.GetChunkViewAsArray(index));
+                    const Array3DView view_cur = (lod > 1 ? grid_lod.GetChunkViewAtLod(index, lod - 1) : grid.GetChunkViewAsArray(index));
                     Array3DView view_next = grid_lod.GetChunkViewAtLod(index, lod);
                     view_next.Fill(0);
                     for (int i = 0; i < (VoxelGrid::CHUNK_SIZE >> (lod-1)); i++) {
                         for (int j = 0; j < (VoxelGrid::CHUNK_SIZE >> (lod - 1)); j++) {
                             for (int k = 0; k < (VoxelGrid::CHUNK_SIZE >> (lod - 1)); k++) {
-                                view_next.At(i >> 1, j >> 1, k >> 1) = std::max(view_cur.At(i, j, k), view_next.At(i >> 1, j >> 1, k >> 1));
+                                int a = view_cur.At(i, j, k);
+                                int b = view_next.At(i >> 1, j >> 1, k >> 1);
+                                view_next.At(i >> 1, j >> 1, k >> 1) = combine(a, b);
                             }
                         }
                     }

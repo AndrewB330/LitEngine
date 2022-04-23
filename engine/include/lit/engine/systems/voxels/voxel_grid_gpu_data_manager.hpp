@@ -52,12 +52,14 @@ namespace lit::engine {
 
         void ProcessAllChangesForEntity(entt::entity ent, const std::vector<ChunkAnyChangeArgs> & changes);
 
+        uint32_t GetGlobalAddress(uint32_t index) const;
+
         static inline const uint64_t MEGABYTE = 1024ll * 1024ll;
         static inline const uint64_t GIGABYTE = MEGABYTE * 1024ll;
 
         static inline const uint64_t CHUNK_GRID_BUFFER_SIZE_BYTES = 128 * MEGABYTE;
         static inline const uint64_t CHUNK_BUFFER_SIZE_BYTES = 2 * GIGABYTE;
-        static inline const uint64_t CHUNK_BIT_BUFFER_SIZE_BYTES = 512 * MEGABYTE;
+        static inline const uint64_t CHUNK_BIT_BUFFER_SIZE_BYTES = 2 * GIGABYTE;
         static inline const uint64_t INFO_BUFFER_SIZE_BYTES = 2 * MEGABYTE;
 
         static inline const int BUCKET_NUM = 3;

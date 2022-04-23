@@ -18,7 +18,7 @@ set(
         src/common/algorithms/fenwick_tree.cpp
         src/common/images/lodepng.cpp
         src/common/images/images.cpp
-)
+        include/lit/common/array.hpp include/lit/common/random.hpp src/random.cpp)
 
 include(FetchContent)
 

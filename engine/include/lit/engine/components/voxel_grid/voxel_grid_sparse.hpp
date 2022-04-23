@@ -16,6 +16,11 @@
 
 namespace lit::engine {
 
+    inline glm::ivec3 bit_ceil_v(glm::ivec3 v) {
+        v = glm::max(v, 0);
+        return {std::bit_ceil((uint32_t)v.x), std::bit_ceil((uint32_t)v.y), std::bit_ceil((uint32_t)v.z)};
+    }
+
     /// <summary>
     /// Implementation of abstract component VoxelGridBase, use it when your voxel grid has a lot of empty voxels.
     /// Internally it divides grid into chunks of size <see cref="VoxelGridSparseT::CHUNK_SIZE"/> and stores only non-empty chunks.
@@ -59,12 +64,14 @@ namespace lit::engine {
         }
 
         VoxelGridSparseT(const glm::ivec3& dimensions, const glm::dvec3& anchor)
-            : VoxelGridBaseT<VoxelType>((((glm::clamp(dimensions, 1, 1 << 15) - 1) | (CHUNK_SIZE - 1)) + 1), anchor),
+            : VoxelGridBaseT<VoxelType>(bit_ceil_v(((glm::clamp(dimensions, 1, 1 << 15) - 1) | (CHUNK_SIZE - 1)) + 1), anchor),
             m_chunk_grid_data(glm::compMul(VoxelGridBaseT<VoxelType>::m_dimensions >> CHUNK_SIZE_LOG), CHUNK_EMPTY),
-            m_chunk_grid(VoxelGridBaseT<VoxelType>::m_dimensions >> CHUNK_SIZE_LOG, m_chunk_grid_data.data()) {
+            m_chunk_grid(VoxelGridBaseT<VoxelType>::m_dimensions >> CHUNK_SIZE_LOG, m_chunk_grid_data.data(), m_chunk_grid_data.data() + m_chunk_grid_data.size()) {
             // Create fake zero chunk
             CreateChunk({ 0, 0, 0 });
         }
+
+        ~VoxelGridSparseT() override = default;
 
         void SetVoxel(const glm::ivec3& position, VoxelType value) override {
             glm::ivec3 chunk_grid_position = position >> CHUNK_SIZE_LOG;
@@ -116,15 +123,6 @@ namespace lit::engine {
             glm::ivec3 relative_position = position & (CHUNK_SIZE - 1);
             return chunk[relative_position.x][relative_position.y][relative_position.z];
         };
-
-        /*void WriteGridDataTo(ChunkIndexType* destination) const {
-            memcpy(destination, m_chunk_grid.Data(),
-                glm::compMul(GetChunkGridDimensions()) * sizeof(ChunkIndexType));
-        }
-
-        void WriteChunkDataTo(VoxelType* destination, ChunkIndexType index) {
-            memcpy(destination, (void*)&m_chunks[index], sizeof(ChunkData));
-        }*/
 
         struct ChunkCreatedArgs {
             ChunkIndexType index;
@@ -234,13 +232,17 @@ namespace lit::engine {
         }
 
         const Array3DView<VoxelType> GetChunkViewAsArray(ChunkIndexType index) const {
-            return Array3DView<VoxelType>(GetChunkDimensions(), (VoxelType*)m_chunks[index].data());
+            return Array3DView<VoxelType>(GetChunkDimensions(), (VoxelType*)(m_chunks[index].data()), (VoxelType*)(m_chunks[index].data() + m_chunks[index].size()));
+        }
+
+        size_t GetChunksNum() {
+            return m_chunks.size();
         }
 
     private:
 
         bool IsEmptyChunk(glm::ivec3 chunk_grid_position) const {
-            return m_chunk_grid.GetPixel(chunk_grid_position);
+            return m_chunk_grid.At(chunk_grid_position);
         }
 
         bool IsValidChunk(glm::ivec3 chunk_grid_position) const {

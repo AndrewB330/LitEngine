@@ -7,6 +7,7 @@
 #include <random>
 #include <omp.h>
 #include <lit/engine/systems/voxels/voxel_world_generator.hpp>
+#include <lit/engine/generators/worldgen.hpp>
 
 using namespace lit::application;
 using namespace lit::common;
@@ -31,13 +32,30 @@ void EnableGlDebug() {
     glDebugMessageCallback(MessageCallback, nullptr);
 }
 
-void InitScene(Scene& scene) {
+void InitScene(Scene& scene, const spdlog::logger_ptr& logger) {
     auto ent = scene.CreteEntity("world");
-    auto& world = ent.AddComponent<VoxelGridSparseT<uint32_t>>(glm::ivec3{ 32, 32, 32 }, glm::dvec3{ 16.0, 0.0, 16.0 });
+
+    auto& world = ent.AddComponent<VoxelGridSparseT<uint32_t>>(glm::ivec3{ 128, 128, 128 }, glm::dvec3{ 64.0, 0.0, 64.0 });
     ent.AddComponent<VoxelGridSparseLodDataT<uint32_t>>();
-    world.SetVoxel({ 0,0,0 }, 1);
-    world.SetVoxel({ 1,1,1 }, 1);
-    world.SetVoxel({ 15,0,17 }, 1);
+
+    WorldGen worldGen;
+
+    worldGen.ResetTestWorld(world);
+    /*
+    for (int i = 0; i < world.GetDimensions().x; i++) {
+            for(int k = 0; k < world.GetDimensions().z; k++) {
+                for(int j = 0; j < world.GetDimensions().y; j++) {
+                if ((i - 64) * (i - 64) + (j - 64) * (j - 64) + (k - 64) * (k - 64)  < 64*64)
+                    world.SetVoxel({i, j, k}, (i << 16) | (j << 8) | k);
+                if (j < sin(i / 128.0) * 64 + cos(k / 128.0) * 64 + 128) {
+                    world.SetVoxel({i, j, k}, 0xFFFFFF);
+                } else {
+                    break;
+                }
+            }
+        }
+    }*/
+
     Timer timer;
     //world = VoxelWorldGenerator::Generate();
 
@@ -55,7 +73,7 @@ void ViewerApp::StartApp(const spdlog::logger_ptr& logger) {
     app.Init();
 
     Scene scene;
-    InitScene(scene);
+    InitScene(scene, logger);
 
     WindowInfo game_window;
     game_window.title = "VoxelViewer (" + compiler + " " + architecture + " " + config + ")";
@@ -65,7 +83,7 @@ void ViewerApp::StartApp(const spdlog::logger_ptr& logger) {
 
     auto window = std::make_shared<ViewerWindow>(scene);
     auto debug = std::make_shared<DebugUI>();
-    app.CreateWindow(game_window, { window/*, debug*/}, {/*debug,*/ window});
+    app.CreateWindow(game_window, { window, debug}, {debug, window});
     EnableGlDebug();
 
     Timer timer;

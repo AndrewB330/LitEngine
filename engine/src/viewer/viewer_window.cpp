@@ -5,6 +5,7 @@
 #include <lit/engine/systems/renderers/camera_pre_renderer.hpp>
 #include <lit/engine/systems/renderers/tone_mapping_renderer.hpp>
 #include <lit/engine/systems/voxels/voxel_grid_lod_manager.hpp>
+#include <lit/engine/systems/debug_system.hpp>
 
 using namespace lit::viewer;
 using namespace lit::engine;
@@ -15,19 +16,17 @@ lit::viewer::ViewerWindow::ViewerWindow(Scene &scene)
 bool lit::viewer::ViewerWindow::Init() {
     m_observer = m_scene.CreteEntity("observer");
     m_observer.AddComponent<CameraComponent>(glm::uvec2(1280, 720));
-    //m_observer.AddComponent<SkyBoxComponent>(ResourcesManager::GetAssetPath("sky_boxes/standard"));
+    m_observer.AddComponent<SkyBoxComponent>(ResourcesManager::GetAssetPath("sky_boxes/standard"));
 
     m_scene.AddSystem<CameraPreRenderer>();
     m_scene.AddSystem<SkyBoxRenderer>();
-    m_scene.AddSystem<VoxelRenderer>();
     m_scene.AddSystem<ToneMappingRenderer>();
     m_scene.AddSystem<ObserverInputController>(m_observer.GetEntity());
+    m_scene.AddSystem<DebugSystem>();
 
     auto& lod_manager = m_scene.AddSystem<VoxelGridLodManager<uint32_t>>();
-
-
-
     m_data_manager = &m_scene.AddSystem<VoxelGridGpuDataManager>(lod_manager);
+    auto & renderer = m_scene.AddSystem<VoxelRenderer>(*m_data_manager);
     return true;
 }
 
